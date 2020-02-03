@@ -4,12 +4,17 @@ class GenresController < ApplicationController
   # GET /genres
   def index
     @genres = Genre.all
-
+    options = {
+      include: [:games, :category]
+    }
     render json: @genres
   end
 
   # GET /genres/1
   def show
+    options = {
+      include: [:games, :category]
+    }
     render json: @genre
   end
 
