@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  category_id: 1
+  title: MyString
+  player_count: 1
+  game_length: 1
+  challenge: MyString
+  genres: MyText
+
+two:
+  category_id: 1
+  title: MyString
+  player_count: 1
+  game_length: 1
+  challenge: MyString
+  genres: MyText
