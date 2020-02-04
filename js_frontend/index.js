@@ -125,7 +125,7 @@ function generateNewButton(category_id){
         .then(category => {
             let div = d.getElementById('allGenres')
             let genres = category.genres
-            div.innerHTML = genres.map((genre) => `<input type="checkbox" name="genres" value="${genre.title}">${genre.title}<br>`).join(" ")
+            div.innerHTML = genres.map((genre) => `<input type="checkbox" name="genres" value="${genre.id}">${genre.title}<br>`).join(" ")
         })
         let gameForm = `
         <form class="newGameForm">
@@ -163,12 +163,11 @@ function generateNewButton(category_id){
 
 function submitNewGame(e){
     e.preventDefault()
-    function getCheckedBoxes(starting, ending){
-        let checkboxes = allInputs.slice(starting, ending)
+    function getCheckedBoxes(inputs){
         let checkedBoxes = []
-        for(let i = 0; i < checkboxes.length; i++){
-            if(checkboxes[i].checked){
-                checkedBoxes.push(checkboxes[i].value)
+        for(let i = 0; i < inputs.length; i++){
+            if(inputs[i].checked){
+                checkedBoxes.push(inputs[i].value)
             }
         }
         return checkedBoxes
@@ -178,28 +177,36 @@ function submitNewGame(e){
     let minPlayers = allInputs[16]
     let maxPlayers = allInputs[17]
     let playtime = allInputs[18]
-    let genres = getCheckedBoxes(1, 16)
-    let difficulties = getCheckedBoxes(19, 24)
+    let genres = getCheckedBoxes(d.getElementsByName('genres'))
+    let difficulties = getCheckedBoxes(d.getElementsByName('challenge'))
+    let genreObjs = []
+    genres.forEach(genre =>{
+        fetch(BASE_URL + `/genres/${genre}`)
+        .then(resp => resp.json())
+        .then(genre =>{
+            genreObjs.push(genre)
+        })
+    })
+    if (d.querySelector('h1').textContent.includes("Video")){
+        category_id = 2
+    } else {
+        category_id = 1
+    }
 
-    console.log(difficulties)
     fetch(BASE_URL + '/games', {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         },
         method: 'POST',
-        body: JSON.stringify({
-            title: gameTitle.value,
-            player_min: minPlayers,
-            player_max: maxPlayers,
-            game_length: playtime,
-            genres: genres,
-            challenge: difficulties[0]
-        })
+        body: JSON.stringify(new Game(gameTitle, minPlayers, maxPlayers, playtime, difficulties[0], category_id))
     })
     .then(resp => resp.json())
     .then(newGame => {
         console.log(newGame)
+    })
+    .catch(error => {
+        console.log(error)
     })
 }
 
@@ -225,4 +232,15 @@ function openForm(){
 function closeForm(){
     d.getElementById("sideForm").style.width = "0px"
     d.querySelector('main').style.marginRight = "0px"
+}
+
+class Game {
+    constructor(title, player_min, player_max, game_length, challenge, category_id){
+        this.title = title
+        this.player_min = player_min
+        this.player_max = player_max
+        this.game_length = game_length
+        this.challenge = challenge
+        this.category_id = category_id
+    }
 }

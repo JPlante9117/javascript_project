@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_03_163319) do
+ActiveRecord::Schema.define(version: 2020_02_04_193727) do
 
   create_table "categories", force: :cascade do |t|
     t.string "title"
@@ -19,10 +19,8 @@ ActiveRecord::Schema.define(version: 2020_02_03_163319) do
   end
 
   create_table "game_genres", force: :cascade do |t|
-    t.integer "game_id"
     t.integer "genre_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.integer "game_id"
   end
 
   create_table "games", force: :cascade do |t|
@@ -30,8 +28,10 @@ ActiveRecord::Schema.define(version: 2020_02_03_163319) do
     t.string "title"
     t.integer "player_min"
     t.integer "player_max"
+    t.integer "suggested_min_age"
     t.integer "game_length"
     t.string "challenge"
+    t.text "genres"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -39,8 +39,6 @@ ActiveRecord::Schema.define(version: 2020_02_03_163319) do
   create_table "genres", force: :cascade do |t|
     t.string "title"
     t.integer "category_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
   end
 
 end

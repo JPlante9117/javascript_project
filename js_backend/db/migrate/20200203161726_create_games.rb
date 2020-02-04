@@ -8,6 +8,7 @@ class CreateGames < ActiveRecord::Migration[6.0]
       t.integer :suggested_min_age
       t.integer :game_length
       t.string :challenge
+      t.text :genres
 
       t.timestamps
     end
