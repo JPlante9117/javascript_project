@@ -30,7 +30,6 @@ ActiveRecord::Schema.define(version: 2020_02_03_163319) do
     t.string "title"
     t.integer "player_min"
     t.integer "player_max"
-    t.integer "suggested_min_age"
     t.integer "game_length"
     t.string "challenge"
     t.datetime "created_at", precision: 6, null: false
