@@ -1,3 +1,87 @@
 .game_table{
-    border: 2px solid red;
+    color: rgb(94, 76, 136);
+    background-color: white;
+    border: 2px solid white;
+    border-radius: 10px;
 }
+
+#sideNav {
+    height: 100%;
+    width: 0; 
+    position: fixed; 
+    z-index: 1; 
+    top: 0;
+    left: 0;
+    background-color: rgb(56, 24, 83); 
+    overflow-x: hidden; 
+    padding-top: 60px; 
+    transition: 0.5s;
+  }
+
+  #sideNav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+  }
+
+  #sideNav button {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #be92c2;
+    display: block;
+    transition: 0.3s;
+    border: none;
+    background: none;
+  }
+
+  #sideNav button:hover {
+    color: #f1f1f1;
+  }
+
+  main {
+    transition: margin-left .5s;
+    padding: 20px;
+  }
+
+  div.container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%)
+  }
+
+  div.container h1 {
+    font-size: 50px;
+    color: white;
+  }
+  div.container button{
+      position: relative;
+      margin-left: 100px;
+      border: 4px solid white;
+      height: 100px;
+      width: 300px;
+      border-radius: 10px;
+      color: white;
+      background-color: rgb(94, 76, 136);
+      font-size: 30px;
+      font-weight: bold;
+  }
+
+  div.container button:hover {
+      background-color: white;
+      color: rgb(94, 76, 136);
+      transition: 0.5s;
+  }
+
+  html, body{
+      color: white;
+      margin: 0;
+      height: 100%;
+      position: relative;
+      background-color: rgb(94, 76, 136);
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  }
