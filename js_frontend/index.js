@@ -44,7 +44,6 @@ function loadTTG(event){
         for(let i = 0; i < games.length; i++){
             generateGameRow(games, table, i)
         }
-        console.log(category.genres.map((genre) => `this is the ${genre.title}`))
         closeNav()
     })
 }
@@ -90,7 +89,7 @@ function generateBaseTable(){
     return table
 }
 
-function generateGameRow(obj, table, i){
+function generateGameRow(gamesArray, table, i){
 
     let row = table.insertRow(i + 1)
     let title = row.insertCell(0)
@@ -100,15 +99,15 @@ function generateGameRow(obj, table, i){
     let challenge = row.insertCell(4)
 
     let genreArr = []
-    for(let gen of obj[i].genres){
+    for(let gen of gamesArray[i].genres){
         genreArr.push(gen.title)
     }
 
-    title.textContent = obj[i].title
+    title.textContent = gamesArray[i].title
     genres.textContent = genreArr.join(", ")
-    players.textContent = `${obj[i].player_min} - ${obj[i].player_max}`
-    playtime.textContent = obj[i].game_length
-    challenge.textContent = obj[i].challenge
+    players.textContent = `${gamesArray[i].player_min} - ${gamesArray[i].player_max}`
+    playtime.textContent = gamesArray[i].game_length
+    challenge.textContent = gamesArray[i].challenge
 }
 
 function generateNewButton(category_id){
@@ -174,19 +173,12 @@ function submitNewGame(e){
     }
     let allInputs = [].slice.call(d.getElementsByTagName('input'))
     let gameTitle = allInputs[0].value
-    let minPlayers = allInputs[16]
-    let maxPlayers = allInputs[17]
-    let playtime = allInputs[18]
+    let minPlayers = d.getElementsByName('min_players')[0].value
+    let maxPlayers = d.getElementsByName('max_players')[0].value
+    let playtime = d.getElementsByName('playtime')[0].value
     let genres = getCheckedBoxes(d.getElementsByName('genres'))
     let difficulties = getCheckedBoxes(d.getElementsByName('challenge'))
-    let genreObjs = []
-    genres.forEach(genre =>{
-        fetch(BASE_URL + `/genres/${genre}`)
-        .then(resp => resp.json())
-        .then(genre =>{
-            genreObjs.push(genre)
-        })
-    })
+    
     if (d.querySelector('h1').textContent.includes("Video")){
         category_id = 2
     } else {
@@ -203,7 +195,20 @@ function submitNewGame(e){
     })
     .then(resp => resp.json())
     .then(newGame => {
-        console.log(newGame)
+        genres.forEach(genre =>{
+            fetch(BASE_URL + '/game_genres', {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify(new GameGenre(newGame.id, genre))
+            })
+            .then(resp => resp.json())
+            .then(gamegen => console.log(gamegen))
+            .catch(err => console.log(err))
+        })
+        let table = d.getElementsByClassName('game_table')[0]
     })
     .catch(error => {
         console.log(error)
@@ -242,5 +247,12 @@ class Game {
         this.game_length = game_length
         this.challenge = challenge
         this.category_id = category_id
+    }
+}
+
+class GameGenre{
+    constructor(game_id, genre_id){
+        this.game_id = game_id
+        this.genre_id = genre_id
     }
 }
