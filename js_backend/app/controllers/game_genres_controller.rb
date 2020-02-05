@@ -5,7 +5,7 @@ class GameGenresController < ApplicationController
     def index
       @game_genres = GameGenre.all
       options = {
-        include: [:games, :category]
+        include: [:game, :genre]
       }
       render json: @game_genres
     end
@@ -13,7 +13,7 @@ class GameGenresController < ApplicationController
     # GET /game_genres/1
     def show
       options = {
-        include: [:games, :category]
+        include: [:game, :genre]
       }
       render json: @game_genre
     end
@@ -51,7 +51,7 @@ class GameGenresController < ApplicationController
   
       # Only allow a trusted parameter "white list" through.
       def game_genre_params
-        params.require(:game_genre).permit(:title, :game_id)
+        params.require(:game_genre).permit(:genre_id, :game_id)
       end
   end
   

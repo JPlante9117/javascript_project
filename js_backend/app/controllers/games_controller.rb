@@ -16,8 +16,12 @@ class GamesController < ApplicationController
   # POST /games
   def create
     @game = Game.new(game_params)
-
     if @game.save
+      params[:genres].each do |gen|
+        genre = Genre.find_by_id(gen)
+        @game.game_genres.create(game_id: @game.id, genre_id: genre.id)
+      end
+      binding.pry
       render json: @game, status: :created, location: @game
     else
       render json: @game.errors, status: :unprocessable_entity
@@ -46,6 +50,6 @@ class GamesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def game_params
-      params.require(:game).permit(:category_id, :title, :player_count, :game_length, :challenge, :genres)
+      params.require(:game).permit(:category_id, :title, :player_min, :player_max, :game_length, :challenge, genre_ids: [])
     end
 end

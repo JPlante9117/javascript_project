@@ -41,9 +41,13 @@ function loadTTG(event){
         div.appendChild(buttons)
         let table = generateBaseTable()
         div.appendChild(table)
-        for(let i = 0; i < games.length; i++){
-            generateGameRow(games, table, i)
-        }
+        games.map(game => {
+            let newGame = new Game(game.title, game.player_min, game.player_max, game.game_length, game.challenge, game.category_id, game.genres)
+            table.innerHTML += newGame.renderGame(game.id)
+        })
+        // for(let i = 0; i < games.length; i++){
+        //     generateGameRow(games, table, i)
+        // }
         closeNav()
     })
 }
@@ -61,9 +65,13 @@ function loadVG(event){
         div.appendChild(buttons)
         let table = generateBaseTable()
         div.appendChild(table)
-        for(let i = 0; i < games.length; i++){
-            generateGameRow(games, table, i)
-        }
+        games.map(game => {
+            let newGame = new Game(game.title, game.player_min, game.player_max, game.game_length, game.challenge, game.category_id, game.genres)
+            table.innerHTML += newGame.renderGame(game.id)
+        })
+        // for(let i = 0; i < games.length; i++){
+        //     generateGameRow(games, table, i)
+        // }
         closeNav()
     })
 }
@@ -89,26 +97,30 @@ function generateBaseTable(){
     return table
 }
 
-function generateGameRow(gamesArray, table, i){
+// function generateGameRow(gamesArray, table, i){
 
-    let row = table.insertRow(i + 1)
-    let title = row.insertCell(0)
-    let genres = row.insertCell(1)
-    let players = row.insertCell(2)
-    let playtime = row.insertCell(3)
-    let challenge = row.insertCell(4)
+//     let row = table.insertRow(i + 1)
+//     let title = row.insertCell(0)
+//     let genres = row.insertCell(1)
+//     let players = row.insertCell(2)
+//     let playtime = row.insertCell(3)
+//     let challenge = row.insertCell(4)
 
-    let genreArr = []
-    for(let gen of gamesArray[i].genres){
-        genreArr.push(gen.title)
-    }
+//     let genreArr = []
+//     for(let gen of gamesArray[i].genres){
+//         genreArr.push(gen.title)
+//     }
 
-    title.textContent = gamesArray[i].title
-    genres.textContent = genreArr.join(", ")
-    players.textContent = `${gamesArray[i].player_min} - ${gamesArray[i].player_max}`
-    playtime.textContent = gamesArray[i].game_length
-    challenge.textContent = gamesArray[i].challenge
-}
+//     title.textContent = gamesArray[i].title
+//     genres.textContent = genreArr.join(", ")
+//     if (gamesArray[i].player_min === gamesArray[i].player_max){
+//         players.textContent = `${gamesArray[i].player_max} players`
+//     } else{
+//         players.textContent = `${gamesArray[i].player_min} - ${gamesArray[i].player_max} players`
+//     }
+//     playtime.textContent = `${gamesArray[i].game_length} minutes`
+//     challenge.textContent = gamesArray[i].challenge
+// }
 
 function generateNewButton(category_id){
     let newGame = d.createElement('button')
@@ -124,7 +136,7 @@ function generateNewButton(category_id){
         .then(category => {
             let div = d.getElementById('allGenres')
             let genres = category.genres
-            div.innerHTML = genres.map((genre) => `<input type="checkbox" name="genres" value="${genre.id}">${genre.title}<br>`).join(" ")
+            div.innerHTML = genres.map((genre) => `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${genre.title}<br>`).join(" ")
         })
         let gameForm = `
         <form class="newGameForm">
@@ -137,13 +149,13 @@ function generateNewButton(category_id){
             <label for="max_players">Players(max): </label>
             <input type="number" name="max_players" min="1"/><br><br>
             <label for="playtime">Average Playtime: </label>
-            <input type="number" name="playtime"/><br><br>
+            <input type="number" name="playtime" min="1"/><br><br>
             <label for="challenge">Challenge Rating: </label><br>
             <input type="radio" name="challenge" value="Easy">Easy<br>
-            <input type="radio" name="challenge" value="intermediate">Intermediate<br>
-            <input type="radio" name="challenge" value="hard">Hard<br>
-            <input type="radio" name="challenge" value="challenging">Challenging<br>
-            <input type="radio" name="challenge" value="masterful">Masterful<br>
+            <input type="radio" name="challenge" value="Intermediate">Intermediate<br>
+            <input type="radio" name="challenge" value="Hard">Hard<br>
+            <input type="radio" name="challenge" value="Challenging">Challenging<br>
+            <input type="radio" name="challenge" value="Masterful">Masterful<br>
 
 
             <input type="submit" value="Add Game"/>
@@ -161,6 +173,7 @@ function generateNewButton(category_id){
 }
 
 function submitNewGame(e){
+    //CREATE FILTER FOR getCheckedBoxes
     e.preventDefault()
     function getCheckedBoxes(inputs){
         let checkedBoxes = []
@@ -176,7 +189,7 @@ function submitNewGame(e){
     let minPlayers = d.getElementsByName('min_players')[0].value
     let maxPlayers = d.getElementsByName('max_players')[0].value
     let playtime = d.getElementsByName('playtime')[0].value
-    let genres = getCheckedBoxes(d.getElementsByName('genres'))
+    let genres = getCheckedBoxes(d.getElementsByName('game[genre_ids][]'))
     let difficulties = getCheckedBoxes(d.getElementsByName('challenge'))
     
     if (d.querySelector('h1').textContent.includes("Video")){
@@ -191,24 +204,13 @@ function submitNewGame(e){
             'Accept': 'application/json'
         },
         method: 'POST',
-        body: JSON.stringify(new Game(gameTitle, minPlayers, maxPlayers, playtime, difficulties[0], category_id))
+        body: JSON.stringify(new Game(gameTitle, parseInt(minPlayers), parseInt(maxPlayers), playtime, difficulties[0], category_id, genres))
     })
     .then(resp => resp.json())
     .then(newGame => {
-        genres.forEach(genre =>{
-            fetch(BASE_URL + '/game_genres', {
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            method: 'POST',
-            body: JSON.stringify(new GameGenre(newGame.id, genre))
-            })
-            .then(resp => resp.json())
-            .then(gamegen => console.log(gamegen))
-            .catch(err => console.log(err))
-        })
+        let game = new Game(newGame.title, newGame.player_min, newGame.player_max, newGame.game_length, newGame.challenge, newGame.category_id, newGame.genres)
         let table = d.getElementsByClassName('game_table')[0]
+        table.innerHTML += game.renderGame(newGame.id)
     })
     .catch(error => {
         console.log(error)
@@ -239,14 +241,53 @@ function closeForm(){
     d.querySelector('main').style.marginRight = "0px"
 }
 
+function grabGenres(gameID){
+    let allGenres =  fetch(BASE_URL + `/games/${gameID}`)
+    .then(resp => resp.json())
+    .then(game => {
+        let genres = game.genres.map(genre => genre.title).join(", ")
+        return genres
+    })
+    return allGenres
+}
+
 class Game {
-    constructor(title, player_min, player_max, game_length, challenge, category_id){
+    constructor(title, player_min, player_max, game_length, challenge, category_id, genre_ids){
         this.title = title
         this.player_min = player_min
         this.player_max = player_max
         this.game_length = game_length
         this.challenge = challenge
         this.category_id = category_id
+        this.genre_ids = genre_ids
+    }
+
+    renderGame(someID){
+        let players
+        if (this.player_min === this.player_max){
+            players = `${this.player_max} players`
+        } else{
+            players = `${this.player_min} - ${this.player_max} players`
+        }
+        return `
+        <tr>
+            <td>
+                ${this.title}
+            </td>
+            <td>
+                ${grabGenres(someID)}
+            </td>
+            <td>
+                ${players}
+            </td>
+            <td>
+                ${this.game_length} minutes
+            </td>
+            <td>
+                ${this.challenge}
+            </td>
+        </tr>
+        `
     }
 }
 
