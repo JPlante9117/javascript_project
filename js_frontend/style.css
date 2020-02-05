@@ -69,6 +69,38 @@
     margin: 20px;
   }
 
+  #newGameButton {
+    position: relative;
+      margin: 10px;
+      border: 2px solid white;
+      height: 33px;
+      width: 100px;
+      border-radius: 10px;
+      color: white;
+      background-color: rgb(94, 76, 136);
+      font-size: 15px;
+      font-weight: bold;
+      transition: 0.5s
+  }
+
+  #newGameButton:hover {
+    background-color: white;
+    color: rgb(94, 76, 136);
+    transition: 0.5s;
+  }
+  
+  
+  .GameForm {
+    margin: 10px;
+  }
+
+  .GameForm input {
+    border: none;
+    background-color: rgb(119, 94, 143);
+    border-radius: 10px;
+    color: white;
+  }
+
   main {
     transition: margin .5s;
     padding: 20px;
@@ -97,6 +129,7 @@
       background-color: rgb(94, 76, 136);
       font-size: 30px;
       font-weight: bold;
+      transition: 0.5s
   }
 
   div.container button:hover {

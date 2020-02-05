@@ -28,6 +28,10 @@ function homePage(){
     div.appendChild(video)
 }
 
+function showPage(gameID){
+    console.log(`This is for a game with id ${gameID}`)
+}
+
 function loadTTG(event){
     event.preventDefault()
     fetch(BASE_URL + '/categories/1')
@@ -138,9 +142,9 @@ function generateNewButton(category_id){
             genreDiv.innerHTML = genres.map((genre) => `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${genre.title}<br>`).join(" ")
         })
         let gameForm = `
-        <div id="formToggle" onclick="closeForm()">X</div>
+        <div id="formToggle" onclick="closeForm()">&times;</div>
         <br><Br><br>
-        <form class="newGameForm">
+        <form class="GameForm">
             <label for="gameTitle">Game Title: </label>
             <input type="text" name="gameTitle"/><br><br>
             <label for="genres">Genres: </label><br>
@@ -236,13 +240,13 @@ function closeNav(){
 }
 
 function openForm(){
-    d.getElementById("sideForm").style.width = "500px"
-    d.querySelector('main').style.marginRight = "500px"
+    d.getElementById("sideForm").style.width = "300px"
+    d.querySelector('main').style.marginRight = "300px"
     d.getElementById('formToggle').onclick = closeForm
 }
 
 function clearForm(){
-    d.getElementsByClassName('newGameForm')[0].reset()
+    d.getElementsByClassName('GameForm')[0].reset()
 }
 
 function closeForm(){
@@ -280,9 +284,9 @@ class Game {
             players = `${this.player_min} - ${this.player_max} players`
         }
         return `
-        <tr>
+        <tr id="gameRow${gameID}">
             <td>
-                ${this.title}
+                <a href="#" onclick="showPage(${gameID}); return false">${this.title}</a>
             </td>
             <td id="genrefor${gameID}">
                 ${grabGenres(gameID)}
