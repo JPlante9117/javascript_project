@@ -129,16 +129,17 @@ function generateNewButton(category_id){
 
     newGame.addEventListener('click', e =>{
         e.preventDefault()
-        let div = d.createElement('div')
-        div.setAttribute('id', 'sideForm')
+        let div = d.getElementById('sideForm')
         fetch(BASE_URL + `/categories/${category_id}`)
         .then(resp => resp.json())
         .then(category => {
-            let div = d.getElementById('allGenres')
+            let genreDiv = d.getElementById('allGenres')
             let genres = category.genres
-            div.innerHTML = genres.map((genre) => `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${genre.title}<br>`).join(" ")
+            genreDiv.innerHTML = genres.map((genre) => `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${genre.title}<br>`).join(" ")
         })
         let gameForm = `
+        <div id="formToggle" onclick="closeForm()">X</div>
+        <br><Br><br>
         <form class="newGameForm">
             <label for="gameTitle">Game Title: </label>
             <input type="text" name="gameTitle"/><br><br>
@@ -161,6 +162,7 @@ function generateNewButton(category_id){
             <input type="submit" value="Add Game"/>
         </form>
         `
+        
         div.innerHTML = gameForm
         newGame.parentElement.appendChild(div)
         openForm()
@@ -211,6 +213,8 @@ function submitNewGame(e){
         let game = new Game(newGame.title, newGame.player_min, newGame.player_max, newGame.game_length, newGame.challenge, newGame.category_id, newGame.genres)
         let table = d.getElementsByClassName('game_table')[0]
         table.innerHTML += game.renderGame(newGame.id)
+        clearForm()
+        closeForm()
     })
     .catch(error => {
         console.log(error)
@@ -234,9 +238,15 @@ function closeNav(){
 function openForm(){
     d.getElementById("sideForm").style.width = "500px"
     d.querySelector('main').style.marginRight = "500px"
+    d.getElementById('formToggle').onclick = closeForm
+}
+
+function clearForm(){
+    d.getElementsByClassName('newGameForm')[0].reset()
 }
 
 function closeForm(){
+    clearForm()
     d.getElementById("sideForm").style.width = "0px"
     d.querySelector('main').style.marginRight = "0px"
 }
