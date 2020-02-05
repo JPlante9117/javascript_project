@@ -242,13 +242,13 @@ function closeForm(){
 }
 
 function grabGenres(gameID){
-    let allGenres =  fetch(BASE_URL + `/games/${gameID}`)
+    fetch(BASE_URL + `/games/${gameID}`)
     .then(resp => resp.json())
     .then(game => {
+        let td = d.getElementById(`genrefor${gameID}`)
         let genres = game.genres.map(genre => genre.title).join(", ")
-        return genres
+        td.textContent = genres
     })
-    return allGenres
 }
 
 class Game {
@@ -262,7 +262,7 @@ class Game {
         this.genre_ids = genre_ids
     }
 
-    renderGame(someID){
+    renderGame(gameID){
         let players
         if (this.player_min === this.player_max){
             players = `${this.player_max} players`
@@ -274,8 +274,8 @@ class Game {
             <td>
                 ${this.title}
             </td>
-            <td>
-                ${grabGenres(someID)}
+            <td id="genrefor${gameID}">
+                ${grabGenres(gameID)}
             </td>
             <td>
                 ${players}
