@@ -31,10 +31,18 @@ class GamesController < ApplicationController
   # PATCH/PUT /games/1
   def update
     if @game.update(game_params)
+      game_genres = GameGenre.where(game_id: @game.id)
+      new_arr = []
       params[:genre_ids].each do |gen|
-        genre = Genre.find_by_id(gen)
-        @game.game_genres.create(game_id: @game.id, genre_id: genre.id)
+        currentGameGenre = GameGenre.find_by(game_id: @game.id, genre_id: gen)
+        if !currentGameGenre
+          new_arr << @game.game_genres.create(game_id: @game.id, genre_id: gen)
+        else
+          new_arr << currentGameGenre
+        end
       end
+      removable_game_genres = game_genres.select {|gamegenre| !new_arr.include?(gamegenre)}
+      removable_game_genres.each {|item| item.delete }
       render json: @game
     else
       render json: @game.errors, status: :unprocessable_entity

@@ -71,8 +71,8 @@ function generateEditButton(game){
             }).join(" ")
         })
         let gameForm = `
-        <div id="formToggle" onclick="closeForm()">&times;</div>
-        <br><br>
+        <span id="formToggle" onclick="closeForm()">&times;</span>
+        <br>
         <center><h2>Edit ${game.title}</h2></center>
         <form class="GameForm">
             <label for="gameTitle">Game Title: </label>
@@ -107,7 +107,9 @@ function generateEditButton(game){
         openForm()
         
         let form = d.getElementsByClassName('GameForm')[0]
-        form.addEventListener("submit", submitEdit)
+        form.addEventListener("submit", (event)=>{
+            submitEdit(event, game)
+        })
     })
 
     return edit
@@ -123,7 +125,7 @@ function getCheckedBoxes(inputs){
     return checkedBoxes
 }
 
-function submitEdit(e){
+function submitEdit(e, game){
     e.preventDefault()
     let allInputs = [].slice.call(d.getElementsByTagName('input'))
     let gameTitle = allInputs[0].value
@@ -145,13 +147,12 @@ function submitEdit(e){
             'Accept': 'application/json'
         },
         method: 'PATCH',
-        body: JSON.stringify(new Game("", gameTitle, parseInt(minPlayers), parseInt(maxPlayers), playtime, difficulties[0], category_id, genres))
+        body: JSON.stringify(new Game(game.id, gameTitle, parseInt(minPlayers), parseInt(maxPlayers), playtime, difficulties[0], category_id, genres))
     })
     .then(resp => resp.json())
-    .then(newGame => {
-        let game = new Game(newGame.id, newGame.title, newGame.player_min, newGame.player_max, newGame.game_length, newGame.challenge, newGame.category_id, newGame.genres)
-        let table = d.getElementsByClassName('game_table')[0]
-        table.innerHTML += game.renderGame()
+    .then(updateGame => {
+        let game = new Game(updateGame.id, updateGame.title, updateGame.player_min, updateGame.player_max, updateGame.game_length, updateGame.challenge, updateGame.category_id, updateGame.genres)
+        showPage(game.id)
         clearForm()
         closeForm()
     })
@@ -315,7 +316,7 @@ function generateNewButton(category_id){
         })
         let gameForm = `
         <div id="formToggle" onclick="closeForm()">&times;</div>
-        <br><Br><br>
+        <center><h2>Add a New Game</h2></center>
         <form class="GameForm">
             <label for="gameTitle">Game Title: </label>
             <input type="text" name="gameTitle"/><br><br>
@@ -454,6 +455,14 @@ class Game {
         return players
     }
 
+    minutesToHours(){
+        if(this.game_length > 59){
+            return `${(this.game_length/60).toFixed(1)} hours`
+        } else {
+            return `${this.game_length} minutes`
+        }
+    }
+
     renderGame(){
         return `
         <tr id="gameRow${this.id}">
@@ -467,7 +476,7 @@ class Game {
                 ${this.getPlayerCount()}
             </td>
             <td>
-                ${this.game_length} minutes
+                ${this.minutesToHours()}
             </td>
             <td>
                 ${this.challenge}
