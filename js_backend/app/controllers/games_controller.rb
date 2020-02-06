@@ -51,6 +51,7 @@ class GamesController < ApplicationController
 
   # DELETE /games/1
   def destroy
+    GameGenre.where(game_id: @game.id).delete_all
     @game.destroy
   end
 

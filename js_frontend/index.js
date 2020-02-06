@@ -9,9 +9,15 @@ function setAttributes(element, attrs){
 
 function homePage(){
     let main = d.querySelector('main')
-    let div = d.createElement('div')
-    div.setAttribute('class', 'container')
-    div.setAttribute('id', 'container')
+    let div
+    if (d.getElementById('container')){
+        div = d.getElementById('container')
+        div.setAttribute('class', 'container')
+    } else {
+        div = d.createElement('div')
+        div.setAttribute('class', 'container')
+        div.setAttribute('id', 'container')
+    }
     main.appendChild(div)
 
     let tabletop = d.createElement('button')
@@ -45,6 +51,7 @@ function showPage(gameID){
         let editButton = generateEditButton(game)
         let deleteButton = generateDeleteButton(game)
         div.appendChild(editButton)
+        div.appendChild(deleteButton)
     })
 }
 
@@ -161,11 +168,45 @@ function submitEdit(e, game){
     })
 }
 
-function generateDeleteButton(game){
-
+function showNoticeDiv(message){
+    let notice = d.getElementById('notice')
+    notice.textContent = message
+    notice.setAttribute('class', '')
+    setTimeout(()=>{
+        notice.setAttribute('class', 'hidden')
+    }, 3000)
+    
 }
 
-function generateShowTable(game, gameID){
+function generateDeleteButton(game){
+    let deleteButton = d.createElement('button')
+    deleteButton.setAttribute('id', 'deleteButton')
+    deleteButton.appendChild(d.createTextNode("Delete Game"))
+
+    deleteButton.addEventListener("click", e =>{
+        e.preventDefault()
+        let confirmation = confirm(`Are you sure you want to delete ${game.title}?`)
+        if (confirmation){
+            console.log("POOF! It's deleted")
+            return fetch(BASE_URL + `/games/${game.id}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                method: 'DELETE',
+                body: JSON.stringify(new Game(game.id, game.title, game.player_min, game.player_max, game.game_length, game.challenge, game.category_id))
+            })
+            .then( () =>{
+                homePage()
+                showNoticeDiv(`${game.title} has been deleted`)
+            })
+        }
+    })
+
+    return deleteButton
+}
+
+function generateShowTable(game){
     function displayGenreNames(game){
         return game.genre_ids.map(genre => genre.title).join(", ")
     }
