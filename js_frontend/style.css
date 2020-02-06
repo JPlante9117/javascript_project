@@ -69,7 +69,7 @@
     margin: 20px;
   }
 
-  #newGameButton, #editButton, #deleteButton {
+  #newGameButton, #editButton, #deleteButton, #submitButton {
     position: relative;
       margin: 10px;
       border: 2px solid white;
@@ -77,21 +77,25 @@
       width: 100px;
       border-radius: 10px;
       color: white;
-      background-color: rgb(94, 76, 136);
+      background-color: transparent;
       font-size: 15px;
       font-weight: bold;
       transition: 0.5s
   }
 
-  #newGameButton:hover, #editButton:hover {
+  #submitButton {
+    font-size: 13px;
+  }
+
+  #newGameButton:hover, #editButton:hover, #submitButton:hover {
     background-color: white;
     color: rgb(94, 76, 136);
     transition: 0.5s;
   }
 
+
   #deleteButton:hover {
     background-color: red;
-    color: white;
     transition: 0.5s;
   }
   

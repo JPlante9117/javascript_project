@@ -31,6 +31,10 @@ class GamesController < ApplicationController
   # PATCH/PUT /games/1
   def update
     if @game.update(game_params)
+      params[:genre_ids].each do |gen|
+        genre = Genre.find_by_id(gen)
+        @game.game_genres.create(game_id: @game.id, genre_id: genre.id)
+      end
       render json: @game
     else
       render json: @game.errors, status: :unprocessable_entity

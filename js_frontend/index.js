@@ -29,6 +29,7 @@ function homePage(){
 }
 
 function showPage(gameID){
+    closeForm()
     fetch(BASE_URL + `/games/${gameID}`)
     .then(resp => resp.json())
     .then(gameInfo => {
@@ -63,9 +64,9 @@ function generateEditButton(game){
             let genres = category.genres
             genreDiv.innerHTML = genres.map((genre) => {
                 if (gameGenres.includes(genre.title)){
-                    `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}" checked>${genre.title}<br>`
+                    return `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}" checked>${genre.title}<br>`
                 } else {
-                    `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${genre.title}<br>`
+                    return `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${genre.title}<br>`
                 }
             }).join(" ")
         })
@@ -92,7 +93,7 @@ function generateEditButton(game){
             <input type="radio" name="challenge" value="Masterful">Masterful<br>
 
 
-            <input type="submit" value="Add Game"/>
+            <input type="submit" value="Update Game" id="submitButton"/>
         </form>
         `
         
@@ -112,9 +113,51 @@ function generateEditButton(game){
     return edit
 }
 
+function getCheckedBoxes(inputs){
+    let checkedBoxes = []
+    for(let i = 0; i < inputs.length; i++){
+        if(inputs[i].checked){
+            checkedBoxes.push(inputs[i].value)
+        }
+    }
+    return checkedBoxes
+}
+
 function submitEdit(e){
     e.preventDefault()
-    console.log("gonna do it")
+    let allInputs = [].slice.call(d.getElementsByTagName('input'))
+    let gameTitle = allInputs[0].value
+    let minPlayers = d.getElementsByName('min_players')[0].value
+    let maxPlayers = d.getElementsByName('max_players')[0].value
+    let playtime = d.getElementsByName('playtime')[0].value
+    let genres = getCheckedBoxes(d.getElementsByName('game[genre_ids][]'))
+    let difficulties = getCheckedBoxes(d.getElementsByName('challenge'))
+    
+    if (d.getElementsByTagName('td')[0].innerText === "Video Game"){
+        category_id = 2
+    } else {
+        category_id = 1
+    }
+
+    fetch(BASE_URL + `/games/${game.id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        method: 'PATCH',
+        body: JSON.stringify(new Game("", gameTitle, parseInt(minPlayers), parseInt(maxPlayers), playtime, difficulties[0], category_id, genres))
+    })
+    .then(resp => resp.json())
+    .then(newGame => {
+        let game = new Game(newGame.id, newGame.title, newGame.player_min, newGame.player_max, newGame.game_length, newGame.challenge, newGame.category_id, newGame.genres)
+        let table = d.getElementsByClassName('game_table')[0]
+        table.innerHTML += game.renderGame()
+        clearForm()
+        closeForm()
+    })
+    .catch(error => {
+        console.log(error)
+    })
 }
 
 function generateDeleteButton(game){
@@ -233,9 +276,13 @@ function loadVG(event){
 d.addEventListener("DOMContentLoaded", () =>{
     homePage()
     d.getElementById('sideNavTTG').addEventListener('click', (event) => {
+        closeForm()
         loadTTG(event)
     })
-    d.getElementById('sideNavVG').addEventListener('click', (event) => loadVG(event))
+    d.getElementById('sideNavVG').addEventListener('click', (event) => {
+        closeForm()
+        loadVG(event)
+    })
 })
 
 function generateBaseTable(){
@@ -288,7 +335,7 @@ function generateNewButton(category_id){
             <input type="radio" name="challenge" value="Masterful">Masterful<br>
 
 
-            <input type="submit" value="Add Game"/>
+            <input type="submit" value="Add Game" id="submitButton"/>
         </form>
         `
         
@@ -304,15 +351,6 @@ function generateNewButton(category_id){
 
 function submitNewGame(e){
     e.preventDefault()
-    function getCheckedBoxes(inputs){
-        let checkedBoxes = []
-        for(let i = 0; i < inputs.length; i++){
-            if(inputs[i].checked){
-                checkedBoxes.push(inputs[i].value)
-            }
-        }
-        return checkedBoxes
-    }
     let allInputs = [].slice.call(d.getElementsByTagName('input'))
     let gameTitle = allInputs[0].value
     let minPlayers = d.getElementsByName('min_players')[0].value
@@ -369,7 +407,9 @@ function openForm(){
 }
 
 function clearForm(){
-    d.getElementsByClassName('GameForm')[0].reset()
+    if (d.getElementsByClassName('GameForm')[0]){
+        d.getElementsByClassName('GameForm')[0].reset()
+    }
 }
 
 function closeForm(){
@@ -415,12 +455,6 @@ class Game {
     }
 
     renderGame(){
-        let players
-        if (this.player_min === this.player_max){
-            players = `${this.player_max} players`
-        } else{
-            players = `${this.player_min} - ${this.player_max} players`
-        }
         return `
         <tr id="gameRow${this.id}">
             <td>
@@ -430,7 +464,7 @@ class Game {
                 ${this.grabGenres()}
             </td>
             <td>
-                ${players}
+                ${this.getPlayerCount()}
             </td>
             <td>
                 ${this.game_length} minutes
