@@ -156,7 +156,17 @@ function submitEdit(e, game){
         method: 'PATCH',
         body: JSON.stringify(new Game(game.id, gameTitle, parseInt(minPlayers), parseInt(maxPlayers), playtime, difficulties[0], category_id, genres))
     })
-    .then(resp => resp.json())
+    .then(resp => {
+        if (!resp.ok){
+            throw alert(`There are some errors on your form. Make sure:
+
+            You have a Title, and it doesn't already exist
+            You have a number as the min/max players and playtime
+            You have selected a challenge rating
+                        `)
+        }
+        return resp.json()
+    })
     .then(updateGame => {
         let game = new Game(updateGame.id, updateGame.title, updateGame.player_min, updateGame.player_max, updateGame.game_length, updateGame.challenge, updateGame.category_id, updateGame.genres)
         showPage(game.id)
@@ -170,7 +180,7 @@ function submitEdit(e, game){
 
 function showNoticeDiv(message){
     let notice = d.getElementById('notice')
-    notice.textContent = message
+    notice.innerHTML = message
     notice.setAttribute('class', '')
     setTimeout(()=>{
         notice.setAttribute('class', 'hidden')
@@ -415,7 +425,17 @@ function submitNewGame(e){
         method: 'POST',
         body: JSON.stringify(new Game("", gameTitle, parseInt(minPlayers), parseInt(maxPlayers), playtime, difficulties[0], category_id, genres))
     })
-    .then(resp => resp.json())
+    .then(resp => {
+        if (!resp.ok){
+            throw alert(`There are some errors on your form. Make sure:
+
+            You have a Title, and it doesn't already exist
+            You have a number as the min/max players and playtime
+            You have selected a challenge rating
+                        `)
+        }
+        return resp.json()
+    })
     .then(newGame => {
         let game = new Game(newGame.id, newGame.title, newGame.player_min, newGame.player_max, newGame.game_length, newGame.challenge, newGame.category_id, newGame.genres)
         let table = d.getElementsByClassName('game_table')[0]
