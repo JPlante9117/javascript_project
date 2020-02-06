@@ -32,16 +32,93 @@ function showPage(gameID){
     fetch(BASE_URL + `/games/${gameID}`)
     .then(resp => resp.json())
     .then(gameInfo => {
-        let game = new Game(gameInfo.title, gameInfo.player_min, gameInfo.player_max, gameInfo.game_length, gameInfo.challenge, gameInfo.category, gameInfo.genres)
+        let game = new Game(gameInfo.id, gameInfo.title, gameInfo.player_min, gameInfo.player_max, gameInfo.game_length, gameInfo.challenge, gameInfo.category, gameInfo.genres)
         console.log(game)
         let div = d.getElementById('container')
         div.innerHTML = `<h1>${game.title}</h1>`
         //
         //Edit and Delete Buttons
         //
-        let table = generateShowTable(game, gameInfo.id)
+        let table = generateShowTable(game)
         div.innerHTML += table
+        let editButton = generateEditButton(game)
+        let deleteButton = generateDeleteButton(game)
+        div.appendChild(editButton)
     })
+}
+
+function generateEditButton(game){
+    let edit = d.createElement('button')
+    edit.setAttribute('id', 'editButton')
+    edit.appendChild(d.createTextNode("Edit Game"))
+
+    edit.addEventListener('click', e =>{
+        e.preventDefault()
+        let div = d.getElementById('sideForm')
+        fetch(BASE_URL + `/categories/${game.category_id.id}`)
+        .then(resp => resp.json())
+        .then(category => {
+            let gameGenres = game.displayGenreNames()
+            let genreDiv = d.getElementById('allGenres')
+            let genres = category.genres
+            genreDiv.innerHTML = genres.map((genre) => {
+                if (gameGenres.includes(genre.title)){
+                    `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}" checked>${genre.title}<br>`
+                } else {
+                    `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${genre.title}<br>`
+                }
+            }).join(" ")
+        })
+        let gameForm = `
+        <div id="formToggle" onclick="closeForm()">&times;</div>
+        <br><br>
+        <center><h2>Edit ${game.title}</h2></center>
+        <form class="GameForm">
+            <label for="gameTitle">Game Title: </label>
+            <input type="text" name="gameTitle" value="${game.title}"/><br><br>
+            <label for="genres">Genres: </label><br>
+            <div id="allGenres"></div>
+            <label for="min_players">Players(min): </label>
+            <input type="number" name="min_players" min="1" value="${game.player_min}"/><br><br>
+            <label for="max_players">Players(max): </label>
+            <input type="number" name="max_players" min="1" value="${game.player_max}"/><br><br>
+            <label for="playtime">Average Playtime: </label>
+            <input type="number" name="playtime" min="1" value="${game.game_length}"/><br><br>
+            <label for="challenge">Challenge Rating: </label><br>
+            <input type="radio" name="challenge" value="Easy">Easy<br>
+            <input type="radio" name="challenge" value="Intermediate">Intermediate<br>
+            <input type="radio" name="challenge" value="Hard">Hard<br>
+            <input type="radio" name="challenge" value="Challenging">Challenging<br>
+            <input type="radio" name="challenge" value="Masterful">Masterful<br>
+
+
+            <input type="submit" value="Add Game"/>
+        </form>
+        `
+        
+        div.innerHTML = gameForm
+        let challenges = d.getElementsByName("challenge")
+        challenges.forEach(challenge => {
+            if (challenge.value === game.challenge){
+                challenge.checked = true
+            }
+        })
+        openForm()
+        
+        let form = d.getElementsByClassName('GameForm')[0]
+        form.addEventListener("submit", submitEdit)
+    })
+
+    return edit
+}
+
+function submitEdit(e){
+    e.preventDefault()
+    console.log("gonna do it")
+}
+
+function generateDeleteButton(game){
+
 }
 
 function generateShowTable(game, gameID){
@@ -119,8 +196,8 @@ function loadTTG(event){
         let table = generateBaseTable()
         div.appendChild(table)
         games.map(game => {
-            let newGame = new Game(game.title, game.player_min, game.player_max, game.game_length, game.challenge, game.category_id, game.genres)
-            table.innerHTML += newGame.renderGame(game.id)
+            let newGame = new Game(game.id, game.title, game.player_min, game.player_max, game.game_length, game.challenge, game.category_id, game.genres)
+            table.innerHTML += newGame.renderGame()
         })
         // for(let i = 0; i < games.length; i++){
         //     generateGameRow(games, table, i)
@@ -143,8 +220,8 @@ function loadVG(event){
         let table = generateBaseTable()
         div.appendChild(table)
         games.map(game => {
-            let newGame = new Game(game.title, game.player_min, game.player_max, game.game_length, game.challenge, game.category_id, game.genres)
-            table.innerHTML += newGame.renderGame(game.id)
+            let newGame = new Game(game.id, game.title, game.player_min, game.player_max, game.game_length, game.challenge, game.category_id, game.genres)
+            table.innerHTML += newGame.renderGame()
         })
         // for(let i = 0; i < games.length; i++){
         //     generateGameRow(games, table, i)
@@ -173,31 +250,6 @@ function generateBaseTable(){
     }
     return table
 }
-
-// function generateGameRow(gamesArray, table, i){
-
-//     let row = table.insertRow(i + 1)
-//     let title = row.insertCell(0)
-//     let genres = row.insertCell(1)
-//     let players = row.insertCell(2)
-//     let playtime = row.insertCell(3)
-//     let challenge = row.insertCell(4)
-
-//     let genreArr = []
-//     for(let gen of gamesArray[i].genres){
-//         genreArr.push(gen.title)
-//     }
-
-//     title.textContent = gamesArray[i].title
-//     genres.textContent = genreArr.join(", ")
-//     if (gamesArray[i].player_min === gamesArray[i].player_max){
-//         players.textContent = `${gamesArray[i].player_max} players`
-//     } else{
-//         players.textContent = `${gamesArray[i].player_min} - ${gamesArray[i].player_max} players`
-//     }
-//     playtime.textContent = `${gamesArray[i].game_length} minutes`
-//     challenge.textContent = gamesArray[i].challenge
-// }
 
 function generateNewButton(category_id){
     let newGame = d.createElement('button')
@@ -241,10 +293,9 @@ function generateNewButton(category_id){
         `
         
         div.innerHTML = gameForm
-        newGame.parentElement.appendChild(div)
         openForm()
         
-        let form = d.getElementsByClassName('newGameForm')[0]
+        let form = d.getElementsByClassName('GameForm')[0]
         form.addEventListener("submit", submitNewGame)
     })
 
@@ -282,13 +333,13 @@ function submitNewGame(e){
             'Accept': 'application/json'
         },
         method: 'POST',
-        body: JSON.stringify(new Game(gameTitle, parseInt(minPlayers), parseInt(maxPlayers), playtime, difficulties[0], category_id, genres))
+        body: JSON.stringify(new Game("", gameTitle, parseInt(minPlayers), parseInt(maxPlayers), playtime, difficulties[0], category_id, genres))
     })
     .then(resp => resp.json())
     .then(newGame => {
-        let game = new Game(newGame.title, newGame.player_min, newGame.player_max, newGame.game_length, newGame.challenge, newGame.category_id, newGame.genres)
+        let game = new Game(newGame.id, newGame.title, newGame.player_min, newGame.player_max, newGame.game_length, newGame.challenge, newGame.category_id, newGame.genres)
         let table = d.getElementsByClassName('game_table')[0]
-        table.innerHTML += game.renderGame(newGame.id)
+        table.innerHTML += game.renderGame()
         clearForm()
         closeForm()
     })
@@ -327,18 +378,9 @@ function closeForm(){
     d.querySelector('main').style.marginRight = "0px"
 }
 
-function grabGenres(gameID){
-    fetch(BASE_URL + `/games/${gameID}`)
-    .then(resp => resp.json())
-    .then(game => {
-        let td = d.getElementById(`genrefor${gameID}`)
-        let genres = game.genres.map(genre => genre.title).join(", ")
-        td.textContent = genres
-    })
-}
-
 class Game {
-    constructor(title, player_min, player_max, game_length, challenge, category_id, genre_ids){
+    constructor(id, title, player_min, player_max, game_length, challenge, category_id, genre_ids){
+        this.id = id
         this.title = title
         this.player_min = player_min
         this.player_max = player_max
@@ -346,6 +388,20 @@ class Game {
         this.challenge = challenge
         this.category_id = category_id
         this.genre_ids = genre_ids
+    }
+
+    grabGenres(){
+        fetch(BASE_URL + `/games/${this.id}`)
+        .then(resp => resp.json())
+        .then(game => {
+            let td = d.getElementById(`genrefor${this.id}`)
+            let genres = this.displayGenreNames()
+            td.textContent = genres
+        })
+    }
+
+    displayGenreNames(){
+        return this.genre_ids.map(genre => genre.title).join(", ")
     }
 
     getPlayerCount(){
@@ -358,7 +414,7 @@ class Game {
         return players
     }
 
-    renderGame(gameID){
+    renderGame(){
         let players
         if (this.player_min === this.player_max){
             players = `${this.player_max} players`
@@ -366,12 +422,12 @@ class Game {
             players = `${this.player_min} - ${this.player_max} players`
         }
         return `
-        <tr id="gameRow${gameID}">
+        <tr id="gameRow${this.id}">
             <td>
-                <a href="#" onclick="showPage(${gameID}); return false">${this.title}</a>
+                <a href="#" onclick="showPage(${this.id}); return false">${this.title}</a>
             </td>
-            <td id="genrefor${gameID}">
-                ${grabGenres(gameID)}
+            <td id="genrefor${this.id}">
+                ${this.grabGenres()}
             </td>
             <td>
                 ${players}
@@ -384,12 +440,5 @@ class Game {
             </td>
         </tr>
         `
-    }
-}
-
-class GameGenre{
-    constructor(game_id, genre_id){
-        this.game_id = game_id
-        this.genre_id = genre_id
     }
 }
