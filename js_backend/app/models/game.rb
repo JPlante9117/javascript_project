@@ -4,6 +4,8 @@ class Game < ApplicationRecord
     has_many :genres, through: :game_genres
 
     validates :title, :player_min, :player_max, :game_length, :challenge, :category_id, presence: true
-    validates :player_max, :player_min, :game_length, numericality: true
     validates :title, uniqueness: true
+    validates :player_min, numericality: {less_than_or_equal_to: :player_max}
+    validates :player_max, numericality: {less_than_or_equal_to: :player_min}
+
 end

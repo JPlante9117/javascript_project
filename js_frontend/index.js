@@ -451,14 +451,14 @@ function submitNewGame(e){
 function openNav(){
     d.getElementById("sideNav").style.width = "250px"
     d.querySelector('main').style.marginLeft = "250px"
-    d.getElementById('navToggle').textContent = "<<<"
+    d.getElementById('navToggle').innerHTML = "&times;"
     d.getElementById('navToggle').onclick = closeNav
 }
 
 function closeNav(){
     d.getElementById("sideNav").style.width = "0px"
     d.querySelector('main').style.marginLeft = "0px"
-    d.getElementById('navToggle').textContent = ">>>"
+    d.getElementById('navToggle').innerHTML = `+`
     d.getElementById('navToggle').onclick = openNav
 }
 

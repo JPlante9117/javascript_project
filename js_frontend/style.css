@@ -6,6 +6,10 @@
     width: 100%
 }
 
+button:hover {
+  cursor: pointer;
+}
+
 #sideNav {
     height: 100%;
     width: 0; 
@@ -28,6 +32,7 @@
     transition: 0.3s;
     border: none;
     background: none;
+    cursor: pointer;
   }
 
   #sideNav button:hover {
@@ -159,9 +164,19 @@
     color: white;
     font-size: 30px;
     transition: 0.5s;
+    pointer-events: none;
   }
 
   div.hidden {
     opacity: 0;
     transition: 0.5s;
+  }
+
+  #navToggle {
+    z-index: 1;
+    font-size: 30px;
+  }
+
+  #navToggle:hover {
+    cursor: pointer;
   }
