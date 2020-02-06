@@ -29,7 +29,80 @@ function homePage(){
 }
 
 function showPage(gameID){
-    console.log(`This is for a game with id ${gameID}`)
+    fetch(BASE_URL + `/games/${gameID}`)
+    .then(resp => resp.json())
+    .then(gameInfo => {
+        let game = new Game(gameInfo.title, gameInfo.player_min, gameInfo.player_max, gameInfo.game_length, gameInfo.challenge, gameInfo.category, gameInfo.genres)
+        console.log(game)
+        let div = d.getElementById('container')
+        div.innerHTML = `<h1>${game.title}</h1>`
+        //
+        //Edit and Delete Buttons
+        //
+        let table = generateShowTable(game, gameInfo.id)
+        div.innerHTML += table
+    })
+}
+
+function generateShowTable(game, gameID){
+    function displayGenreNames(game){
+        return game.genre_ids.map(genre => genre.title).join(", ")
+    }
+    function displayGameLength(game){
+        if(game.game_length <= 59){
+            return `${game.game_length} minutes`
+        } else if (game.game_length <= 120 && game.game_length > 59){
+            return `${(game.game_length / 60.0).toFixed(1)} hours`
+        } else {
+            return `${(game.game_length / 60.0).toFixed(1)} hours. It may be recommended to break this game into multiple sessions`
+        }
+    }
+    
+    return `
+    <table class="game_table">
+        <tr>
+            <th class="showHeader">
+                Game Type:
+            </th>
+            <td>
+                ${game.category_id.title}
+            </td>
+        </tr>
+        <tr>
+            <th class="showHeader">
+                Game Genre(s):
+            </th>
+            <td>
+                ${displayGenreNames(game)}
+            </td>
+        </tr>
+        <tr>
+            <th class="showHeader">
+                Players:
+            </th>
+            <td>
+                This game is intended for ${game.getPlayerCount()}.
+            </td>
+        </tr>
+        <tr>
+            <th class="showHeader">
+                Challenge Rating:
+            </th>
+            <td>
+                This game is considered ${game.challenge}.
+            </td>
+        </tr>
+        <tr>
+        <th class="showHeader">
+            Average Game Length:
+        </th>
+        <td>
+            An average round of this game is ${displayGameLength(game)}.        
+        </td>
+    </tr>
+    </table>
+    `
+
 }
 
 function loadTTG(event){
@@ -179,7 +252,6 @@ function generateNewButton(category_id){
 }
 
 function submitNewGame(e){
-    //CREATE FILTER FOR getCheckedBoxes
     e.preventDefault()
     function getCheckedBoxes(inputs){
         let checkedBoxes = []
@@ -274,6 +346,16 @@ class Game {
         this.challenge = challenge
         this.category_id = category_id
         this.genre_ids = genre_ids
+    }
+
+    getPlayerCount(){
+        let players = null
+        if (this.player_min === this.player_max){
+            players = `${this.player_max} players`
+        } else{
+            players = `${this.player_min} - ${this.player_max} players`
+        }
+        return players
     }
 
     renderGame(gameID){
