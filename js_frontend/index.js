@@ -103,7 +103,7 @@ function generateEditButton(game){
             <label for="gameTitle">Game Title: </label>
             <input type="text" name="gameTitle" value="${game.title}"/><br><br>
             <label for="genres">Genres: </label><br>
-            <div id="allGenres"></div><Br>
+            <div id="allGenres"></div>
             <label for="new_genre">New Genre: </label>
             <input type="text" name="game[genres_attributes][0][title]"><br><br>
             <label for="min_players">Players(min): </label>
@@ -200,12 +200,7 @@ function submitEdit(e, game){
         closeForm()
     })
     .catch(error => {
-        alert(`Make Sure Your Submission Follows These Rules:
-        ~ The Title is Present and Unique
-        ~ For Duplicates, place a Year next to the Title (e.g. 20XX)
-        ~ Min/Max Players and Playtime are all Numbers Larger than 0
-        ~ Min Players is smaller or the same value as Max Players
-        ~ A Challenge Rating is Selected`)
+        errorAlert()
     })
 }
 
@@ -264,7 +259,7 @@ function generateShowTable(game){
                 Game Type:
             </th>
             <td class="showDisplay">
-                ${game.category.title}
+                ${toTitleCase(game.category.title)}
             </td>
         </tr>
         <tr>
@@ -288,7 +283,7 @@ function generateShowTable(game){
                 Challenge Rating:
             </th>
             <td class="showDisplay">
-                This game is considered ${game.challenge}.
+                This game is considered ${toTitleCase(game.challenge)}.
             </td>
         </tr>
         <tr class="last_row">
@@ -305,7 +300,7 @@ function generateShowTable(game){
 }
 
 function filterByName() {
-    let input, filter, ul, li, a, i, txtValue;
+    let input, filter, a, i, txtValue;
     input = d.getElementById("myInput");
     filter = input.value.toUpperCase();
     tr = d.getElementsByTagName('tr');
@@ -449,8 +444,7 @@ function loadGames(event, catId){
         })
         div.innerHTML = `<h1>Select a ${category.title}</h1><div id="buttons"></div>`
         let buttonRow = d.getElementById('buttons')
-        // let buttons = generateNewButton(category.id)
-        // buttonRow.appendChild(buttons)
+
         d.createElement("SELECT")
         let filterSelect = `
         <select id="filter">
@@ -631,13 +625,17 @@ function submitNewGame(e){
         closeForm()
     })
     .catch(error => {
-        alert(`Make Sure Your Submission Follows These Rules:
-        ~ The Title is Present and Unique
-        ~ For Duplicates, place a Year next to the Title (e.g. 20XX)
-        ~ Min/Max Players and Playtime are all Numbers Larger than 0
-        ~ Min Players is smaller or the same value as Max Players
-        ~ A Challenge Rating is Selected`)
+        errorAlert()
     })
+}
+
+function errorAlert(){
+    return alert(`Make Sure Your Submission Follows These Rules:
+    ~ The Title is Present and Unique
+    ~ For Duplicates, place a Year next to the Title (e.g. 20XX)
+    ~ Min/Max Players and Playtime are all Numbers Larger than 0
+    ~ Min Players is smaller or the same value as Max Players
+    ~ A Challenge Rating is Selected`)
 }
 
 function openNav(){
@@ -738,11 +736,5 @@ class Game {
             </td>
         </tr>
         `
-    }
-}
-
-class Genre{
-    constructor(title){
-        this.title = title
     }
 }

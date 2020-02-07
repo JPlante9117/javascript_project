@@ -9,6 +9,18 @@
     border-collapse: collapse;
 }
 
+a {
+  font-weight: bolder;
+  text-decoration: none;
+  transition: 0.2s;
+  font-size: larger;
+}
+
+a:hover {
+  color: pink;
+  transition: 0.2s;
+}
+
 .game_table tr{
   border-bottom: 2px solid rgb(56, 24, 83);
 }

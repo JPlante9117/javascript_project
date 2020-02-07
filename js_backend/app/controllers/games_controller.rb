@@ -27,15 +27,6 @@ class GamesController < ApplicationController
   def update
     if @game.update(game_params)
       new_arr = []
-      # params[:genre_ids].each do |gen|
-      #   currentGameGenre = GameGenre.find_by(game_id: @game.id, genre_id: gen)
-      #   if !currentGameGenre
-      #     new_arr << @game.game_genres.create(genre_id: gen)
-      #   else
-      #     new_arr << currentGameGenre
-      #   end
-      # end
-      # @game.game_genres = new_arr
       render json: @game
     else
       render json: @game.errors, status: :unprocessable_entity
