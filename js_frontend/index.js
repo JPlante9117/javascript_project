@@ -23,12 +23,12 @@ function homePage(){
     let tabletop = d.createElement('button')
     setAttributes(tabletop, {'id': 'tt_button'})
     tabletop.appendChild(d.createTextNode("Tabletop Games"))
-    tabletop.addEventListener('click', event => loadTTG(event))
+    tabletop.addEventListener('click', event => loadGames(event, 1))
 
     let video = d.createElement('button')
     setAttributes(video, {'id': 'vg_button'})
     video.appendChild(d.createTextNode("Video Games"))
-    video.addEventListener('click', event => loadVG(event))
+    video.addEventListener('click', event => loadGames(event, 2))
     div.innerHTML = "<h1>What Kind of Game Will You Be Playing?</h1>"
     div.appendChild(tabletop)
     div.appendChild(video)
@@ -266,7 +266,7 @@ function generateShowTable(game){
                 This game is considered ${game.challenge}.
             </td>
         </tr>
-        <tr>
+        <tr class="last_row">
         <th class="showHeader">
             Average Game Length:
         </th>
@@ -279,15 +279,23 @@ function generateShowTable(game){
 
 }
 
-function loadTTG(event){
+function loadGames(event, catId){
     event.preventDefault()
-    fetch(BASE_URL + '/categories/1')
+    fetch(BASE_URL + `/categories/${catId}`)
     .then(resp => resp.json())
     .then(category => {
         let div = d.querySelector('main #container')
         div.setAttribute('class', '')
-        let games = category.games
-        div.innerHTML = "<h1>Select a Tabletop Game</h1>"
+        let games = category.games.sort((a, b) => {
+            if (a.title > b.title){
+                return 1
+            }
+            if (b.title > a.title){
+                return -1
+            }
+            return 0
+        })
+        div.innerHTML = `<h1>Select a ${category.title}</h1>`
         let buttons = generateNewButton(1)
         div.appendChild(buttons)
         let table = generateBaseTable()
@@ -301,37 +309,20 @@ function loadTTG(event){
     })
 }
 
-function loadVG(event){
-    event.preventDefault()
+function filter(){
     fetch(BASE_URL + '/categories/2')
     .then(resp => resp.json())
-    .then(category => {
-        let div = d.querySelector('main #container')
-        div.setAttribute('class', '')
-        let games = category.games
-        div.innerHTML = "<h1>Select a Video Game</h1>"
-        let buttons = generateNewButton(2)
-        div.appendChild(buttons)
-        let table = generateBaseTable()
-        div.appendChild(table)
-        games.map(game => {
-            let newGame = new Game(game.id, game.title, game.player_min, game.player_max, game.game_length, game.challenge, game.category_id, game.genres)
-            table.innerHTML += newGame.renderGame()
-        })
-        table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
-        closeNav()
-    })
 }
 
 d.addEventListener("DOMContentLoaded", () =>{
     homePage()
     d.getElementById('sideNavTTG').addEventListener('click', (event) => {
         closeForm()
-        loadTTG(event)
+        loadGames(event, 1)
     })
     d.getElementById('sideNavVG').addEventListener('click', (event) => {
         closeForm()
-        loadVG(event)
+        loadGames(event, 2)
     })
 })
 
