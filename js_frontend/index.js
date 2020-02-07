@@ -39,7 +39,7 @@ function showPage(gameID){
     fetch(BASE_URL + `/games/${gameID}`)
     .then(resp => resp.json())
     .then(gameInfo => {
-        let game = new Game(gameInfo.id, gameInfo.title, gameInfo.player_min, gameInfo.player_max, gameInfo.game_length, gameInfo.challenge, gameInfo.category, gameInfo.genres)
+        let game = new Game(gameInfo)
         let div = d.getElementById('container')
         div.innerHTML = `<h1>${game.title}</h1><div id="buttons"></div>`
         let table = generateShowTable(game)
@@ -94,6 +94,8 @@ function generateEditButton(game){
             <input type="text" name="gameTitle" value="${game.title}"/><br><br>
             <label for="genres">Genres: </label><br>
             <div id="allGenres"></div><Br>
+            <label for="new_genre">New Genre: </label>
+            <input type="text" name="game[genres_attributes][0][title]"><br><br>
             <label for="min_players">Players(min): </label>
             <input type="number" name="min_players" min="1" value="${game.player_min}"/><br><br>
             <label for="max_players">Players(max): </label>
@@ -149,6 +151,7 @@ function submitEdit(e, game){
     let playtime = d.getElementsByName('playtime')[0].value
     let genres = getCheckedBoxes(d.getElementsByName('game[genre_ids][]'))
     let difficulties = getCheckedBoxes(d.getElementsByName('challenge'))
+    let genTitle = d.getElementsByName('game[genres_attributes][0][title]')[0].value
     
     if (d.getElementsByTagName('td')[0].innerText === "Video Game"){
         category_id = 2
@@ -162,23 +165,27 @@ function submitEdit(e, game){
             'Accept': 'application/json'
         },
         method: 'PATCH',
-        body: JSON.stringify(new Game(game.id, gameTitle, parseInt(minPlayers), parseInt(maxPlayers), playtime, difficulties[0], category_id, genres))
+        body: JSON.stringify({
+            game:{
+                id: "",
+                title: gameTitle,
+                player_min: minPlayers,
+                player_max: maxPlayers,
+                game_length: playtime,
+                challenge: difficulties[0],
+                category_id: category_id,
+                genre_ids: genres,
+                genres_attributes:{
+                    category_id: category_id,
+                    title: genTitle
+                }
+            }
+        })
     })
-    .then(resp => {
-        if (!resp.ok){
-            throw alert(`There are some errors on your form. Make sure:
-
-            ~ You have a Title, and it doesn't already exist
-            ~ At least one genre is selected
-            ~ You have a number as the min/max players and playtime
-            ~ Your minimum players is smaller or the same as your maximum players
-            ~ You have selected a challenge rating
-                        `)
-        }
-        return resp.json()
-    })
+    .then(resp => resp.json())
     .then(updateGame => {
-        let game = new Game(updateGame.id, updateGame.title, updateGame.player_min, updateGame.player_max, updateGame.game_length, updateGame.challenge, updateGame.category_id, updateGame.genres)
+        console.log("click")
+        let game = new Game(updateGame)
         showPage(game.id)
         clearForm()
         closeForm()
@@ -213,8 +220,7 @@ function generateDeleteButton(game){
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                method: 'DELETE',
-                body: JSON.stringify(new Game(game.id, game.title, game.player_min, game.player_max, game.game_length, game.challenge, game.category_id))
+                method: 'DELETE'
             })
             .then( () =>{
                 homePage()
@@ -454,7 +460,7 @@ function loadGames(event, catId){
         let select = d.getElementById('filter')
         select.addEventListener("change", renderFilterField)
         games.map(game => {
-            let newGame = new Game(game.id, game.title, game.player_min, game.player_max, game.game_length, game.challenge, game.category_id, game.genres)
+            let newGame = new Game(game)
             table.innerHTML += newGame.renderGame()
         })
         table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
@@ -499,7 +505,15 @@ function generateNewButton(category_id){
         .then(resp => resp.json())
         .then(category => {
             let genreDiv = d.getElementById('allGenres')
-            let genres = category.genres
+            let genres = category.genres.sort((a, b) => {
+                if (a.title > b.title){
+                    return 1
+                }
+                if (b.title > a.title){
+                    return -1
+                }
+                return 0
+            })
             genreDiv.innerHTML = genres.map((genre) => `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${genre.title}<br>`).join(" ")
         })
         let gameForm = `
@@ -510,6 +524,8 @@ function generateNewButton(category_id){
             <input type="text" name="gameTitle"/><br><br>
             <label for="genres">Genres: </label><br>
             <div id="allGenres"></div>
+            <label for="new_genre">New Genre: </label>
+            <input type="text" name="game[genres_attributes][0][title]"><br><br>
             <label for="min_players">Players(min): </label>
             <input type="number" name="min_players" min="1"/><br><br>
             <label for="max_players">Players(max): </label>
@@ -547,6 +563,7 @@ function submitNewGame(e){
     let playtime = d.getElementsByName('playtime')[0].value
     let genres = getCheckedBoxes(d.getElementsByName('game[genre_ids][]'))
     let difficulties = getCheckedBoxes(d.getElementsByName('challenge'))
+    let genTitle = d.getElementsByName('game[genres_attributes][0][title]')[0].value
     
     if (d.querySelector('h1').textContent.includes("Video")){
         category_id = 2
@@ -560,24 +577,27 @@ function submitNewGame(e){
             'Accept': 'application/json'
         },
         method: 'POST',
-        body: JSON.stringify(new Game("", gameTitle, parseInt(minPlayers), parseInt(maxPlayers), playtime, difficulties[0], category_id, genres))
+        body: JSON.stringify({
+            game:{
+                id: "",
+                title: gameTitle,
+                player_min: minPlayers,
+                player_max: maxPlayers,
+                game_length: playtime,
+                challenge: difficulties[0],
+                category_id: category_id,
+                genre_ids: genres,
+                genres_attributes:{
+                    category_id: category_id,
+                    title: genTitle
+                }
+            }
+        })
     })
-    .then(resp => {
-        if (!resp.ok){
-            throw alert(`There are some errors on your form. Make sure:
-
-~ You have a Title, and it doesn't already exist
-~ At least one genre is selected
-~ You have a number as the min/max players and playtime
-~ Your minimum players is smaller or the same as your maximum
-    players
-~ You have selected a challenge rating
-                        `)
-        }
-        return resp.json()
-    })
+    .then(resp => resp.json())
     .then(newGame => {
-        let game = new Game(newGame.id, newGame.title, newGame.player_min, newGame.player_max, newGame.game_length, newGame.challenge, newGame.category_id, newGame.genres)
+        console.log(newGame)
+        let game = new Game(newGame)
         let table = d.getElementsByClassName('game_table')[0]
         if (d.getElementById('myInput')){
             let input = d.getElementById('myInput')
@@ -598,6 +618,7 @@ function submitNewGame(e){
         closeForm()
     })
     .catch(error => {
+        debugger
         console.log(error)
     })
 }
@@ -635,29 +656,20 @@ function closeForm(){
 }
 
 class Game {
-    constructor(id, title, player_min, player_max, game_length, challenge, category_id, genre_ids){
-        this.id = id
-        this.title = title
-        this.player_min = player_min
-        this.player_max = player_max
-        this.game_length = game_length
-        this.challenge = challenge
-        this.category_id = category_id
-        this.genre_ids = genre_ids
-    }
 
-    grabGenres(){
-        fetch(BASE_URL + `/games/${this.id}`)
-        .then(resp => resp.json())
-        .then(game => {
-            let td = d.getElementById(`genrefor${this.id}`)
-            let genres = this.displayGenreNames()
-            td.textContent = genres
-        })
+    constructor(game){
+        this.id = game.id
+        this.title = game.title
+        this.player_min = game.player_min
+        this.player_max = game.player_max
+        this.game_length = game.game_length
+        this.challenge = game.challenge
+        this.genres = game.genres
     }
 
     displayGenreNames(){
-        return this.genre_ids.map(genre => genre.title).join(", ")
+        console.log(this)
+        return this.genres.map(genre => genre.title).join(", ")
     }
 
     getPlayerCount(){
@@ -686,7 +698,7 @@ class Game {
                 <a href="#" onclick="showPage(${this.id}); return false">${this.title}</a>
             </td>
             <td id="genrefor${this.id}">
-                ${this.grabGenres()}
+                ${this.displayGenreNames()}
             </td>
             <td>
                 ${this.getPlayerCount()}
@@ -699,5 +711,11 @@ class Game {
             </td>
         </tr>
         `
+    }
+}
+
+class Genre{
+    constructor(title){
+        this.title = title
     }
 }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_04_193727) do
+ActiveRecord::Schema.define(version: 2020_02_07_203522) do
 
   create_table "categories", force: :cascade do |t|
     t.string "title"
@@ -28,10 +28,8 @@ ActiveRecord::Schema.define(version: 2020_02_04_193727) do
     t.string "title"
     t.integer "player_min"
     t.integer "player_max"
-    t.integer "suggested_min_age"
     t.integer "game_length"
     t.string "challenge"
-    t.text "genres"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
