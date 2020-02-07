@@ -43,16 +43,26 @@ function showPage(gameID){
         console.log(game)
         let div = d.getElementById('container')
         div.innerHTML = `<h1>${game.title}</h1>`
-        //
-        //Edit and Delete Buttons
-        //
-        let table = generateShowTable(game)
-        div.innerHTML += table
         let editButton = generateEditButton(game)
         let deleteButton = generateDeleteButton(game)
         div.appendChild(editButton)
         div.appendChild(deleteButton)
+        let table = generateShowTable(game)
+        div.innerHTML += table
+        let backButton = generateBackButton(game)
+        div.appendChild(backButton)
     })
+}
+
+function generateBackButton(game){
+        let backButton = d.createElement('button')
+        backButton.appendChild(d.createTextNode("Back"))
+        backButton.setAttribute('id', 'backButton')
+        backButton.addEventListener("click", (e) =>{
+            loadGames(e, game.category_id.id)
+        })
+
+        return backButton
 }
 
 function generateEditButton(game){
@@ -279,6 +289,133 @@ function generateShowTable(game){
 
 }
 
+function filterByName() {
+    let input, filter, ul, li, a, i, txtValue;
+    input = d.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    tr = d.getElementsByTagName('tr');
+    for (i = 1; i < tr.length; i++) {
+        a = tr[i].getElementsByTagName("a")[0];
+        txtValue = a.textContent || a.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+        }
+    }
+}
+function filterByGenre() {
+    let input, filter, tr, genres, i, txtValue;
+    input = d.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    tr = d.getElementsByTagName('tr');
+    for (i = 1; i < tr.length; i++) {
+        genres = tr[i].getElementsByTagName("td")[1];
+        txtValue = genres.textContent || genres.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+        }
+    }
+}
+
+function filterByPlayers() {
+    function determineInsideRange(range, input){
+        let min, max
+        if (range.length === 2){
+            min, max = parseInt(range[0])
+        } else {
+            min = parseInt(range[0])
+            max = parseInt(range[2])
+        }
+        if ((parseInt(input) >= min && parseInt(input) <= max) || input === "" ){
+            return true
+        }
+        return false
+    }
+    let input, tr, players, i
+    input = d.getElementById("myInput").value;
+    tr = d.getElementsByTagName('tr');
+    for (i = 1; i < tr.length; i++) {
+        players = tr[i].getElementsByTagName("td")[2].innerText;
+        let range = players.split(" ")
+        if (determineInsideRange(range, input)) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+        }
+    }
+}
+
+function filterByTime() {
+    function determineTime(timeArr, input){
+        let time, type
+        [time, type] = timeArr
+        if (type === "hours"){
+            time = time * 60
+        }
+        if (parseInt(input) >= time || input === "" ){
+            return true
+        }
+        return false
+    }
+    let input, tr, timeTd, i
+    input = d.getElementById("myInput").value;
+    tr = d.getElementsByTagName('tr');
+    for (i = 1; i < tr.length; i++) {
+        timeTd = tr[i].getElementsByTagName("td")[3].innerText;
+        let timeArr = timeTd.split(" ")
+        if (determineTime(timeArr, input)) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+        }
+    }
+}
+
+function filterByChallenge() {
+    let input, filter, tr, challenge, i, txtValue;
+    input = d.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    tr = d.getElementsByTagName('tr');
+    for (i = 1; i < tr.length; i++) {
+        challenge = tr[i].getElementsByTagName("td")[4];
+        txtValue = challenge.textContent || challenge.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+        }
+    }
+}
+
+function renderFilterField(){
+    let filter = d.getElementById('filter').value
+    let span = d.getElementById('filterSpan')
+    switch (filter){
+        case "":
+            span.innerHTML = ``
+            break
+        case "Name":
+            span.innerHTML = `<input type="text" id="myInput" onkeyup="filterByName()" placeholder="Search by Name..." title="Type in a name">`
+            break
+        case "Genre":
+            span.innerHTML = `<input type="text" id="myInput" onkeyup="filterByGenre()" placeholder="Search by Genre..." title="Type in a genre">`
+            break
+        case "Players":
+            span.innerHTML = `<input type="text" id="myInput" onkeyup="filterByPlayers()" placeholder="Search by Player Count..." title="Type in a number">`
+            break
+        case "Playtime":
+            span.innerHTML = `<input type="number" id="myInput" onkeyup="filterByTime()" placeholder="Search by Playtime(min)..." title="Type in a number">`
+            break
+        case "Challenge":
+            span.innerHTML = `<input type="text" id="myInput" onkeyup="filterByChallenge()" placeholder="Search by Challenge Rating..." title="Type in a challenge rating">`
+            break
+
+    }
+}
+
 function loadGames(event, catId){
     event.preventDefault()
     fetch(BASE_URL + `/categories/${catId}`)
@@ -295,9 +432,24 @@ function loadGames(event, catId){
             }
             return 0
         })
-        div.innerHTML = `<h1>Select a ${category.title}</h1>`
-        let buttons = generateNewButton(1)
-        div.appendChild(buttons)
+        div.innerHTML = `<h1>Select a ${category.title}</h1><div id="buttons"></div>`
+        let buttonRow = d.getElementById('buttons')
+        let buttons = generateNewButton(category.id)
+        buttonRow.appendChild(buttons)
+        let filterSelect = `
+        <select id="filter">
+            <option class="options" value="">Filter . . .</option>
+            <option class="options" value="Name">Name</option>
+            <option class="options" value="Genre">Genre</option>
+            <option class="options" value="Players">Players</option>
+            <option class="options" value="Playtime">Playtime</option>
+            <option class="options" value="Challenge">Challenge</option>
+        </select>
+        <span id="filterSpan"></span>
+        `
+        buttonRow.innerHTML += filterSelect
+        let select = d.getElementById('filter')
+        select.addEventListener("change", renderFilterField)
         let table = generateBaseTable()
         div.appendChild(table)
         games.map(game => {
@@ -307,11 +459,6 @@ function loadGames(event, catId){
         table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
         closeNav()
     })
-}
-
-function filter(){
-    fetch(BASE_URL + '/categories/2')
-    .then(resp => resp.json())
 }
 
 d.addEventListener("DOMContentLoaded", () =>{

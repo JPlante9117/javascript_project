@@ -84,8 +84,8 @@ button:hover {
     cursor: pointer;
   }
 
-  #newGameButton, #editButton, #deleteButton, #submitButton {
-    position: relative;
+  #newGameButton, #editButton, #deleteButton, #submitButton, #backButton {
+      position: relative;
       margin: 10px;
       border: 2px solid white;
       height: 33px;
@@ -102,7 +102,7 @@ button:hover {
     font-size: 13px;
   }
 
-  #newGameButton:hover, #editButton:hover, #submitButton:hover {
+  #newGameButton:hover, #editButton:hover, #submitButton:hover, #backButton:hover {
     background-color: white;
     color: rgb(94, 76, 136);
     transition: 0.5s;
@@ -214,4 +214,35 @@ button:hover {
   .showDisplay {
     text-align: left;
     font-size: 25px;
+  }
+
+  #filter {
+      position: relative;
+      margin: 10px;
+      border: 2px solid white;
+      height: 33px;
+      width: 100px;
+      border-radius: 10px;
+      color: white;
+      background-color: transparent;
+      font-size: 15px;
+      font-weight: bold;
+      transition: 0.5s
+  }
+
+  #filter:hover {
+    color: rgb(94, 76, 136);
+    background-color: white;
+  }
+
+  #myInput {
+    border-radius: 5px;
+    background-color: turquoise;
+    border: none;
+    padding: 5px;
+  }
+
+  .options {
+    color: rgb(94, 76, 136);
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   }
