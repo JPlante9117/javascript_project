@@ -160,9 +160,11 @@ function submitEdit(e, game){
         if (!resp.ok){
             throw alert(`There are some errors on your form. Make sure:
 
-            You have a Title, and it doesn't already exist
-            You have a number as the min/max players and playtime
-            You have selected a challenge rating
+            ~ You have a Title, and it doesn't already exist
+            ~ At least one genre is selected
+            ~ You have a number as the min/max players and playtime
+            ~ Your minimum players is smaller or the same as your maximum players
+            ~ You have selected a challenge rating
                         `)
         }
         return resp.json()
@@ -429,9 +431,12 @@ function submitNewGame(e){
         if (!resp.ok){
             throw alert(`There are some errors on your form. Make sure:
 
-            You have a Title, and it doesn't already exist
-            You have a number as the min/max players and playtime
-            You have selected a challenge rating
+~ You have a Title, and it doesn't already exist
+~ At least one genre is selected
+~ You have a number as the min/max players and playtime
+~ Your minimum players is smaller or the same as your maximum
+    players
+~ You have selected a challenge rating
                         `)
         }
         return resp.json()
