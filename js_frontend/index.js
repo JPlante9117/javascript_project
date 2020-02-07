@@ -59,7 +59,7 @@ function generateBackButton(game){
     backButton.appendChild(d.createTextNode("Back"))
     backButton.setAttribute('id', 'backButton')
     backButton.addEventListener("click", (e) =>{
-        loadGames(e, game.category_id.id)
+        loadGames(e, game.category.id)
     })
     return backButton
 }
@@ -71,12 +71,20 @@ function generateEditButton(game){
     edit.addEventListener('click', e =>{
         e.preventDefault()
         let div = d.getElementById('sideForm')
-        fetch(BASE_URL + `/categories/${game.category_id.id}`)
+        fetch(BASE_URL + `/categories/${game.category.id}`)
         .then(resp => resp.json())
         .then(category => {
             let gameGenres = game.displayGenreNames()
             let genreDiv = d.getElementById('allGenres')
-            let genres = category.genres
+            let genres = category.genres.sort((a, b) => {
+                if (a.title > b.title){
+                    return 1
+                }
+                if (b.title > a.title){
+                    return -1
+                }
+                return 0
+            })
             genreDiv.innerHTML = genres.map((genre) => {
                 if (gameGenres.includes(genre.title)){
                     return `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}" checked>${genre.title}<br>`
@@ -233,9 +241,6 @@ function generateDeleteButton(game){
 }
 
 function generateShowTable(game){
-    function displayGenreNames(game){
-        return game.genre_ids.map(genre => genre.title).join(", ")
-    }
     function displayGameLength(game){
         if(game.game_length <= 59){
             return `${game.game_length} minutes`
@@ -253,7 +258,7 @@ function generateShowTable(game){
                 Game Type:
             </th>
             <td class="showDisplay">
-                ${game.category_id.title}
+                ${game.category.title}
             </td>
         </tr>
         <tr>
@@ -261,7 +266,7 @@ function generateShowTable(game){
                 Game Genre(s):
             </th>
             <td class="showDisplay">
-                ${displayGenreNames(game)}
+                ${game.displayGenreNames()}
             </td>
         </tr>
         <tr>
@@ -665,6 +670,7 @@ class Game {
         this.game_length = game.game_length
         this.challenge = game.challenge
         this.genres = game.genres
+        this.category = game.category
     }
 
     displayGenreNames(){
