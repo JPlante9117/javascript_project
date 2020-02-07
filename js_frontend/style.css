@@ -95,7 +95,7 @@ button:hover {
       background-color: transparent;
       font-size: 15px;
       font-weight: bold;
-      transition: 0.5s
+      transition: 0.5s;
   }
 
   #submitButton, #deleteButton {
@@ -145,7 +145,8 @@ button:hover {
   }
   div.container button{
       position: relative;
-      margin-left: 100px;
+      margin-left: 50px;
+      margin-right: 50px;
       border: 4px solid white;
       height: 100px;
       width: 300px;
@@ -237,9 +238,14 @@ button:hover {
 
   #myInput {
     border-radius: 5px;
-    background-color: turquoise;
+    background-color: rgb(119, 94, 143);
     border: none;
     padding: 5px;
+    color: white;
+  }
+
+  #myInput::placeholder {
+    color: white;
   }
 
   .options {

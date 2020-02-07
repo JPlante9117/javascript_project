@@ -40,36 +40,34 @@ function showPage(gameID){
     .then(resp => resp.json())
     .then(gameInfo => {
         let game = new Game(gameInfo.id, gameInfo.title, gameInfo.player_min, gameInfo.player_max, gameInfo.game_length, gameInfo.challenge, gameInfo.category, gameInfo.genres)
-        console.log(game)
         let div = d.getElementById('container')
-        div.innerHTML = `<h1>${game.title}</h1>`
-        let editButton = generateEditButton(game)
-        let deleteButton = generateDeleteButton(game)
-        div.appendChild(editButton)
-        div.appendChild(deleteButton)
+        div.innerHTML = `<h1>${game.title}</h1><div id="buttons"></div>`
         let table = generateShowTable(game)
         div.innerHTML += table
+        let editButton = generateEditButton(game)
+        let deleteButton = generateDeleteButton(game)
+        let buttondiv = d.getElementById('buttons')
+        buttondiv.appendChild(editButton)
+        buttondiv.appendChild(deleteButton)
         let backButton = generateBackButton(game)
         div.appendChild(backButton)
     })
 }
 
 function generateBackButton(game){
-        let backButton = d.createElement('button')
-        backButton.appendChild(d.createTextNode("Back"))
-        backButton.setAttribute('id', 'backButton')
-        backButton.addEventListener("click", (e) =>{
-            loadGames(e, game.category_id.id)
-        })
-
-        return backButton
+    let backButton = d.createElement('button')
+    backButton.appendChild(d.createTextNode("Back"))
+    backButton.setAttribute('id', 'backButton')
+    backButton.addEventListener("click", (e) =>{
+        loadGames(e, game.category_id.id)
+    })
+    return backButton
 }
 
 function generateEditButton(game){
     let edit = d.createElement('button')
     edit.setAttribute('id', 'editButton')
     edit.appendChild(d.createTextNode("Edit Game"))
-
     edit.addEventListener('click', e =>{
         e.preventDefault()
         let div = d.getElementById('sideForm')
@@ -434,8 +432,9 @@ function loadGames(event, catId){
         })
         div.innerHTML = `<h1>Select a ${category.title}</h1><div id="buttons"></div>`
         let buttonRow = d.getElementById('buttons')
-        let buttons = generateNewButton(category.id)
-        buttonRow.appendChild(buttons)
+        // let buttons = generateNewButton(category.id)
+        // buttonRow.appendChild(buttons)
+        d.createElement("SELECT")
         let filterSelect = `
         <select id="filter">
             <option class="options" value="">Filter . . .</option>
@@ -447,11 +446,13 @@ function loadGames(event, catId){
         </select>
         <span id="filterSpan"></span>
         `
-        buttonRow.innerHTML += filterSelect
-        let select = d.getElementById('filter')
-        select.addEventListener("change", renderFilterField)
         let table = generateBaseTable()
         div.appendChild(table)
+        let buttons = generateNewButton(category.id)
+        buttonRow.appendChild(buttons)
+        buttonRow.insertAdjacentHTML('beforeend', filterSelect)
+        let select = d.getElementById('filter')
+        select.addEventListener("change", renderFilterField)
         games.map(game => {
             let newGame = new Game(game.id, game.title, game.player_min, game.player_max, game.game_length, game.challenge, game.category_id, game.genres)
             table.innerHTML += newGame.renderGame()
@@ -578,7 +579,21 @@ function submitNewGame(e){
     .then(newGame => {
         let game = new Game(newGame.id, newGame.title, newGame.player_min, newGame.player_max, newGame.game_length, newGame.challenge, newGame.category_id, newGame.genres)
         let table = d.getElementsByClassName('game_table')[0]
+        if (d.getElementById('myInput')){
+            let input = d.getElementById('myInput')
+            if (input.value !== ""){
+                tablerows = [...table.getElementsByTagName('tr')]
+                tablerows.forEach(row => {
+                    row.style.display = ""
+                })
+                input.value = ""
+            } else {
+                table = d.getElementsByClassName('game_table')[0]
+            }
+        }
         table.innerHTML += game.renderGame()
+        table.rows[table.rows.length - 2].setAttribute('class', '')
+        table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
         clearForm()
         closeForm()
     })
