@@ -3,6 +3,9 @@ class Game < ApplicationRecord
     has_many :game_genres
     has_many :genres, through: :game_genres
 
+    validates :title, presence: true
+    validates :title, uniqueness: true, case_sensitive: false
+
     def genres_attributes=(genre_attributes)
         if genre_attributes[:title] != ""
             genre = Genre.find_or_create_by(genre_attributes)

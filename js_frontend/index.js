@@ -87,9 +87,9 @@ function generateEditButton(game){
             })
             genreDiv.innerHTML = genres.map((genre) => {
                 if (gameGenres.includes(genre.title)){
-                    return `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}" checked>${genre.title}<br>`
+                    return `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}" checked>${toTitleCase(genre.title)}<br>`
                 } else {
-                    return `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${genre.title}<br>`
+                    return `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${toTitleCase(genre.title)}<br>`
                 }
             }).join(" ")
         })
@@ -153,13 +153,13 @@ function getCheckedBoxes(inputs){
 function submitEdit(e, game){
     e.preventDefault()
     let allInputs = [].slice.call(d.getElementsByTagName('input'))
-    let gameTitle = allInputs[0].value
+    let gameTitle = allInputs[0].value.toLowerCase()
     let minPlayers = d.getElementsByName('min_players')[0].value
     let maxPlayers = d.getElementsByName('max_players')[0].value
     let playtime = d.getElementsByName('playtime')[0].value
     let genres = getCheckedBoxes(d.getElementsByName('game[genre_ids][]'))
     let difficulties = getCheckedBoxes(d.getElementsByName('challenge'))
-    let genTitle = d.getElementsByName('game[genres_attributes][0][title]')[0].value
+    let genTitle = d.getElementsByName('game[genres_attributes][0][title]')[0].value.toLowerCase()
     
     if (d.getElementsByTagName('td')[0].innerText === "Video Game"){
         category_id = 2
@@ -176,7 +176,7 @@ function submitEdit(e, game){
         body: JSON.stringify({
             game:{
                 id: "",
-                title: gameTitle,
+                title: gameTitle.toLowerCase(),
                 player_min: minPlayers,
                 player_max: maxPlayers,
                 game_length: playtime,
@@ -185,21 +185,25 @@ function submitEdit(e, game){
                 genre_ids: genres,
                 genres_attributes:{
                     category_id: category_id,
-                    title: genTitle
+                    title: genTitle.toLowerCase()
                 }
             }
         })
     })
     .then(resp => resp.json())
     .then(updateGame => {
-        console.log("click")
         let game = new Game(updateGame)
         showPage(game.id)
         clearForm()
         closeForm()
     })
     .catch(error => {
-        console.log(error)
+        alert(`Make Sure Your Submission Follows These Rules:
+        ~ The Title is Present and Unique
+        ~ For Duplicates, place a Year next to the Title (e.g. 20XX)
+        ~ Min/Max Players and Playtime are all Numbers Larger than 0
+        ~ Min Players is smaller or the same value as Max Players
+        ~ A Challenge Rating is Selected`)
     })
 }
 
@@ -519,7 +523,7 @@ function generateNewButton(category_id){
                 }
                 return 0
             })
-            genreDiv.innerHTML = genres.map((genre) => `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${genre.title}<br>`).join(" ")
+            genreDiv.innerHTML = genres.map((genre) => `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${toTitleCase(genre.title)}<br>`).join(" ")
         })
         let gameForm = `
         <div id="formToggle" onclick="closeForm()">&times;</div>
@@ -562,13 +566,13 @@ function generateNewButton(category_id){
 function submitNewGame(e){
     e.preventDefault()
     let allInputs = [].slice.call(d.getElementsByTagName('input'))
-    let gameTitle = allInputs[0].value
+    let gameTitle = allInputs[0].value.toLowerCase()
     let minPlayers = d.getElementsByName('min_players')[0].value
     let maxPlayers = d.getElementsByName('max_players')[0].value
     let playtime = d.getElementsByName('playtime')[0].value
     let genres = getCheckedBoxes(d.getElementsByName('game[genre_ids][]'))
     let difficulties = getCheckedBoxes(d.getElementsByName('challenge'))
-    let genTitle = d.getElementsByName('game[genres_attributes][0][title]')[0].value
+    let genTitle = d.getElementsByName('game[genres_attributes][0][title]')[0].value.toLowerCase()
     
     if (d.querySelector('h1').textContent.includes("Video")){
         category_id = 2
@@ -585,7 +589,7 @@ function submitNewGame(e){
         body: JSON.stringify({
             game:{
                 id: "",
-                title: gameTitle,
+                title: gameTitle.toLowerCase(),
                 player_min: minPlayers,
                 player_max: maxPlayers,
                 game_length: playtime,
@@ -594,7 +598,7 @@ function submitNewGame(e){
                 genre_ids: genres,
                 genres_attributes:{
                     category_id: category_id,
-                    title: genTitle
+                    title: genTitle.toLowerCase()
                 }
             }
         })
@@ -623,8 +627,12 @@ function submitNewGame(e){
         closeForm()
     })
     .catch(error => {
-        debugger
-        console.log(error)
+        alert(`Make Sure Your Submission Follows These Rules:
+        ~ The Title is Present and Unique
+        ~ For Duplicates, place a Year next to the Title (e.g. 20XX)
+        ~ Min/Max Players and Playtime are all Numbers Larger than 0
+        ~ Min Players is smaller or the same value as Max Players
+        ~ A Challenge Rating is Selected`)
     })
 }
 
@@ -660,11 +668,20 @@ function closeForm(){
     d.querySelector('main').style.marginRight = "0px"
 }
 
+function toTitleCase(str) {
+    return str.replace(
+        /\w\S*/g,
+        function(txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }
+    );
+}
+
 class Game {
 
     constructor(game){
         this.id = game.id
-        this.title = game.title
+        this.title = toTitleCase(game.title)
         this.player_min = game.player_min
         this.player_max = game.player_max
         this.game_length = game.game_length
@@ -674,8 +691,8 @@ class Game {
     }
 
     displayGenreNames(){
-        console.log(this)
-        return this.genres.map(genre => genre.title).join(", ")
+        let string =  this.genres.map(genre => genre.title).join(", ")
+        return toTitleCase(string)
     }
 
     getPlayerCount(){
