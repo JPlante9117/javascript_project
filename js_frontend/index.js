@@ -35,6 +35,7 @@ function homePage(){
 }
 
 function showPage(gameID){
+    closeNav()
     closeForm()
     fetch(BASE_URL + `/games/${gameID}`)
     .then(resp => resp.json())
@@ -59,6 +60,7 @@ function generateBackButton(game){
     backButton.appendChild(d.createTextNode("Back"))
     backButton.setAttribute('id', 'backButton')
     backButton.addEventListener("click", (e) =>{
+        closeForm()
         loadGames(e, game.category.id)
     })
     return backButton
@@ -86,7 +88,7 @@ function generateEditButton(game){
                 return 0
             })
             genreDiv.innerHTML = genres.map((genre) => {
-                if (gameGenres.includes(genre.title)){
+                if (gameGenres.includes(toTitleCase(genre.title))){
                     return `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}" checked>${toTitleCase(genre.title)}<br>`
                 } else {
                     return `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${toTitleCase(genre.title)}<br>`
@@ -258,7 +260,7 @@ function generateShowTable(game){
     return `
     <table class="game_table">
         <tr>
-            <th class="showHeader">
+            <th class="showHeader" style="border-top-left-radius: 10px;">
                 Game Type:
             </th>
             <td class="showDisplay">
@@ -290,7 +292,7 @@ function generateShowTable(game){
             </td>
         </tr>
         <tr class="last_row">
-        <th class="showHeader">
+        <th class="showHeader" style="border-bottom-left-radius: 10px">
             Average Game Length:
         </th>
         <td class="showDisplay">
@@ -463,6 +465,8 @@ function loadGames(event, catId){
         `
         let table = generateBaseTable()
         div.appendChild(table)
+        table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
+        table.rows[0].getElementsByTagName('th')[4].setAttribute('class','topRightHeader')
         let buttons = generateNewButton(category.id)
         buttonRow.appendChild(buttons)
         buttonRow.insertAdjacentHTML('beforeend', filterSelect)

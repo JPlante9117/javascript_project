@@ -10,7 +10,7 @@
 }
 
 .game_table tr{
-  border-bottom: 2px solid rgb(61, 0, 66);
+  border-bottom: 2px solid rgb(56, 24, 83);
 }
 
 .game_table tr.last_row {
@@ -24,6 +24,20 @@
 
 .game_table th, td{
   padding-left: 20px;
+  padding: 20px;
+}
+
+.game_table th {
+  background-color: rgb(56, 24, 83);
+  color: white;
+}
+
+.topLeftHeader {
+  border-top-left-radius: 10px;
+}
+
+.topRightHeader {
+  border-top-right-radius: 10px;
 }
 
 button:hover {
