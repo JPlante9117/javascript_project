@@ -1,9 +1,29 @@
 .game_table{
+    margin: 0 auto;
     color: rgb(94, 76, 136);
     background-color: white;
     border: 2px solid white;
     border-radius: 10px;
-    width: 100%
+    width: 70%;
+    border: none;
+    border-collapse: collapse;
+}
+
+.game_table tr{
+  border-bottom: 2px solid grey;
+}
+
+.game_table tr.last_row {
+  border: none;
+}
+
+.game_table tr:nth-child(even){
+  background-color: rgb(116, 99, 163);
+  color: white;
+}
+
+.game_table th, td{
+  padding-left: 20px;
 }
 
 button:hover {
@@ -40,6 +60,7 @@ button:hover {
   }
 
   #sideForm {
+    text-align: left;
     height: 100%;
     width: 0; 
     position: fixed; 
@@ -143,6 +164,7 @@ button:hover {
   }
 
   html, body{
+      text-align: center;
       color: white;
       margin: 0;
       height: 100%;
@@ -175,8 +197,20 @@ button:hover {
   #navToggle {
     z-index: 1;
     font-size: 30px;
+    float: left;
   }
 
   #navToggle:hover {
     cursor: pointer;
+  }
+
+  .showHeader {
+    text-align: left;
+    width: 20%;
+    font-size: 30px;
+  }
+
+  .showDisplay {
+    text-align: left;
+    font-size: 25px;
   }

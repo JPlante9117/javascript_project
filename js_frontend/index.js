@@ -85,7 +85,7 @@ function generateEditButton(game){
             <label for="gameTitle">Game Title: </label>
             <input type="text" name="gameTitle" value="${game.title}"/><br><br>
             <label for="genres">Genres: </label><br>
-            <div id="allGenres"></div>
+            <div id="allGenres"></div><Br>
             <label for="min_players">Players(min): </label>
             <input type="number" name="min_players" min="1" value="${game.player_min}"/><br><br>
             <label for="max_players">Players(max): </label>
@@ -238,7 +238,7 @@ function generateShowTable(game){
             <th class="showHeader">
                 Game Type:
             </th>
-            <td>
+            <td class="showDisplay">
                 ${game.category_id.title}
             </td>
         </tr>
@@ -246,7 +246,7 @@ function generateShowTable(game){
             <th class="showHeader">
                 Game Genre(s):
             </th>
-            <td>
+            <td class="showDisplay">
                 ${displayGenreNames(game)}
             </td>
         </tr>
@@ -254,7 +254,7 @@ function generateShowTable(game){
             <th class="showHeader">
                 Players:
             </th>
-            <td>
+            <td class="showDisplay">
                 This game is intended for ${game.getPlayerCount()}.
             </td>
         </tr>
@@ -262,7 +262,7 @@ function generateShowTable(game){
             <th class="showHeader">
                 Challenge Rating:
             </th>
-            <td>
+            <td class="showDisplay">
                 This game is considered ${game.challenge}.
             </td>
         </tr>
@@ -270,7 +270,7 @@ function generateShowTable(game){
         <th class="showHeader">
             Average Game Length:
         </th>
-        <td>
+        <td class="showDisplay">
             An average round of this game is ${displayGameLength(game)}.        
         </td>
     </tr>
@@ -296,9 +296,7 @@ function loadTTG(event){
             let newGame = new Game(game.id, game.title, game.player_min, game.player_max, game.game_length, game.challenge, game.category_id, game.genres)
             table.innerHTML += newGame.renderGame()
         })
-        // for(let i = 0; i < games.length; i++){
-        //     generateGameRow(games, table, i)
-        // }
+        table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
         closeNav()
     })
 }
@@ -320,9 +318,7 @@ function loadVG(event){
             let newGame = new Game(game.id, game.title, game.player_min, game.player_max, game.game_length, game.challenge, game.category_id, game.genres)
             table.innerHTML += newGame.renderGame()
         })
-        // for(let i = 0; i < games.length; i++){
-        //     generateGameRow(games, table, i)
-        // }
+        table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
         closeNav()
     })
 }
@@ -530,6 +526,7 @@ class Game {
     }
 
     renderGame(){
+
         return `
         <tr id="gameRow${this.id}">
             <td>
