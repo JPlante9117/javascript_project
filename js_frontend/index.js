@@ -239,6 +239,8 @@ function generateDeleteButton(game){
             })
             .then( () =>{
                 homePage()
+                closeForm()
+                closeNav()
                 showNoticeDiv(`${game.title} has been deleted`)
             })
         }

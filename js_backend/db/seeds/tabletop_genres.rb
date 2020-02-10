@@ -1,0 +1,17 @@
+# Tabletop Game Genres
+
+Genre.create(title: "family", category_id: 1)
+Genre.create(title: "dexterity", category_id: 1)
+Genre.create(title: "party", category_id: 1)
+Genre.create(title: "hobby", category_id: 1)
+Genre.create(title: "abstracts", category_id: 1)
+Genre.create(title: "thematic", category_id: 1)
+Genre.create(title: "eurogames", category_id: 1)
+Genre.create(title: "wargames", category_id: 1)
+Genre.create(title: "deck-building", category_id: 1)
+Genre.create(title: "cooperative", category_id: 1)
+Genre.create(title: "children's", category_id: 1)
+Genre.create(title: "dice", category_id: 1)
+Genre.create(title: "card", category_id: 1)
+Genre.create(title: "deceit", category_id: 1)
+Genre.create(title: "of the mind", category_id: 1)
