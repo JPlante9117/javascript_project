@@ -192,6 +192,7 @@ button:hover {
 
   html, body{
       text-align: center;
+      transition: 0.5s;
       color: white;
       margin: 0;
       height: 100%;
@@ -209,7 +210,7 @@ button:hover {
     right: 0;
     width: 100%;
     height: 50px;
-    background-color: red;
+    background-color: green;
     color: white;
     font-size: 30px;
     transition: 0.5s;
@@ -277,4 +278,9 @@ button:hover {
   .options {
     color: rgb(94, 76, 136);
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  }
+
+  .pushedDown {
+    margin-top: 40px;
+    transition: 0.5s;
   }

@@ -196,6 +196,7 @@ function submitEdit(e, game){
     .then(updateGame => {
         let game = new Game(updateGame)
         showPage(game.id)
+        showNoticeDiv(`${game.title} has been edited`)
         clearForm()
         closeForm()
     })
@@ -206,10 +207,16 @@ function submitEdit(e, game){
 
 function showNoticeDiv(message){
     let notice = d.getElementById('notice')
+    let body = d.getElementsByTagName('body')[0]
     notice.innerHTML = message
+    if (message.includes('delete')){
+        notice.style.backgroundColor = "red"
+    }
     notice.setAttribute('class', '')
+    body.setAttribute('class', 'pushedDown')
     setTimeout(()=>{
         notice.setAttribute('class', 'hidden')
+        body.setAttribute('class', '')
     }, 3000)
     
 }
@@ -223,7 +230,6 @@ function generateDeleteButton(game){
         e.preventDefault()
         let confirmation = confirm(`Are you sure you want to delete ${game.title}?`)
         if (confirmation){
-            console.log("POOF! It's deleted")
             return fetch(BASE_URL + `/games/${game.id}`, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -603,7 +609,6 @@ function submitNewGame(e){
     })
     .then(resp => resp.json())
     .then(newGame => {
-        console.log(newGame)
         let game = new Game(newGame)
         let table = d.getElementsByClassName('game_table')[0]
         if (d.getElementById('myInput')){
@@ -621,6 +626,7 @@ function submitNewGame(e){
         table.innerHTML += game.renderGame()
         table.rows[table.rows.length - 2].setAttribute('class', '')
         table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
+        showNoticeDiv(`${game.title} has been created`)
         clearForm()
         closeForm()
     })
@@ -677,64 +683,4 @@ function toTitleCase(str) {
             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         }
     );
-}
-
-class Game {
-
-    constructor(game){
-        this.id = game.id
-        this.title = toTitleCase(game.title)
-        this.player_min = game.player_min
-        this.player_max = game.player_max
-        this.game_length = game.game_length
-        this.challenge = game.challenge
-        this.genres = game.genres
-        this.category = game.category
-    }
-
-    displayGenreNames(){
-        let string =  this.genres.map(genre => genre.title).join(", ")
-        return toTitleCase(string)
-    }
-
-    getPlayerCount(){
-        let players = null
-        if (this.player_min === this.player_max){
-            players = `${this.player_max} players`
-        } else{
-            players = `${this.player_min} - ${this.player_max} players`
-        }
-        return players
-    }
-
-    minutesToHours(){
-        if(this.game_length > 59){
-            return `${(this.game_length/60).toFixed(1)} hours`
-        } else {
-            return `${this.game_length} minutes`
-        }
-    }
-
-    renderGame(){
-
-        return `
-        <tr id="gameRow${this.id}">
-            <td>
-                <a href="#" onclick="showPage(${this.id}); return false">${this.title}</a>
-            </td>
-            <td id="genrefor${this.id}">
-                ${this.displayGenreNames()}
-            </td>
-            <td>
-                ${this.getPlayerCount()}
-            </td>
-            <td>
-                ${this.minutesToHours()}
-            </td>
-            <td>
-                ${this.challenge}
-            </td>
-        </tr>
-        `
-    }
 }
