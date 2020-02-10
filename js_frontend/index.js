@@ -110,7 +110,7 @@ function generateEditButton(game){
             <input type="number" name="min_players" min="1" value="${game.player_min}"/><br><br>
             <label for="max_players">Players(max): </label>
             <input type="number" name="max_players" min="1" value="${game.player_max}"/><br><br>
-            <label for="playtime">Average Playtime: </label>
+            <label for="playtime">Average Playtime(in minutes): </label>
             <input type="number" name="playtime" min="1" value="${game.game_length}"/><br><br>
             <label for="challenge">Challenge Rating: </label><br>
             <input type="radio" name="challenge" value="Easy">Easy<br>
@@ -211,6 +211,8 @@ function showNoticeDiv(message){
     notice.innerHTML = message
     if (message.includes('delete')){
         notice.style.backgroundColor = "red"
+    } else {
+        notice.style.backgroundColor = "green"
     }
     notice.setAttribute('class', '')
     body.setAttribute('class', 'pushedDown')
@@ -545,7 +547,7 @@ function generateNewButton(category_id){
             <input type="number" name="min_players" min="1"/><br><br>
             <label for="max_players">Players(max): </label>
             <input type="number" name="max_players" min="1"/><br><br>
-            <label for="playtime">Average Playtime: </label>
+            <label for="playtime">Average Playtime(in minutes): </label>
             <input type="number" name="playtime" min="1"/><br><br>
             <label for="challenge">Challenge Rating: </label><br>
             <input type="radio" name="challenge" value="Easy">Easy<br>
