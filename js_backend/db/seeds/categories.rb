@@ -9,4 +9,4 @@
 # Category
 
 Category.create(title: "Tabletop Game")
-Category.create(title: "Video Game")
+Category.create(title: "Video Game") 
