@@ -1,6 +1,6 @@
 # Game Organizer
 
-Game Organizer is a JavaScript web application that allows a user to keep track of the different games they own, and in turn assist them in viewing games applicable for the current setting. Users can select either TableTop or Video Games, and then filter the results based on how much time they have, how many players are present, or what genre they are looking to play.
+Game Organizer is a JavaScript web application that allows a user to keep track of the different games they own, and in turn assist them in viewing games applicable for the current setting. Users can select either Tabletop or Video Games, and then filter the results based on how much time they have, how many players are present, or what genre they are looking to play.
 
 ## Installation
 
@@ -25,7 +25,7 @@ rails db:seed:categories
 ```
 
 From here, you have two options. You may either:
-1) Start the application and get going on your Game Organizer!
+1) Fully customize the genres for each type of game. To do so, just start the application and get going on your Game Organizer!
 
 ```bash
 rails s
@@ -45,12 +45,17 @@ The application starts with having the user select which type of game they are l
 Once selected, the user can:
 
 - Look through existing games
-- Filter the results using the filter dropdown and the newly generated filter text field
-- Create a new game using the 'New Game' button.
+- Filter the results using the filter drop-down and the newly generated filter text field
 - Click on the name of an existing game to see an easier to read page.
     - On that page, you will find 'Edit Game' and 'Delete Game' buttons, as well as a 'Back' button.
+    - The 'Edit Game' button will allow for the information about the game to be changed.
+    - The 'Delete Game' button will prompt the user to confirm the deletion, and then delete the game from the database.
+    - The 'Back Button' will return the user to the previous page.
+- Create a new game using the 'New Game' button.
 
-On all pages, there is a symbol in the upper lefthand corner that allows for users toggle a navigation bar that allows for switching between the two types of games.
+**NOTE: If any errors are in the forms for new or edited games, an alert will remind you to check back over your fields.**
+
+On all pages, there is a symbol in the upper left-hand corner that allows for users toggle a navigation bar that allows for switching between the two types of games.
 
 ## Contributing
 

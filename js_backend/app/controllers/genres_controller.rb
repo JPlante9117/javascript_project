@@ -29,15 +29,6 @@ class GenresController < ApplicationController
     end
   end
 
-  # PATCH/PUT /genres/1
-  def update
-    if @genre.update(genre_params)
-      render json: @genre
-    else
-      render json: @genre.errors, status: :unprocessable_entity
-    end
-  end
-
   # DELETE /genres/1
   def destroy
     @genre.destroy
