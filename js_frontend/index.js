@@ -564,6 +564,10 @@ d.addEventListener("DOMContentLoaded", () =>{
         closeForm()
         loadGames(event, 2)
     })
+    d.getElementById('sideNavALL').addEventListener('click', (event) => {
+        closeForm()
+        loadAllGames(event)
+    })
 })
 
 function generateBaseTable(){
@@ -625,6 +629,7 @@ function loadForm(event, category_id){
             return 0
         })
         genreDiv.innerHTML = genres.map((genre) => `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${toTitleCase(genre.title)}<br>`).join(" ")
+        openForm()
     })
     let gameForm = `
     <div id="formToggle" onclick="closeForm()">&times;</div>
@@ -655,7 +660,6 @@ function loadForm(event, category_id){
     `
     
     div.innerHTML = gameForm
-    openForm()
     
     let form = d.getElementsByClassName('GameForm')[0]
     form.addEventListener("submit", submitNewGame)
