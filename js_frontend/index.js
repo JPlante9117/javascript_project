@@ -318,7 +318,7 @@ function generateShowTable(game){
 
 function filterByName() {
     let input, filter, a, i, txtValue;
-    input = d.getElementById("myInput");
+    input = d.getElementById("filterField");
     filter = input.value.toUpperCase();
     tr = d.getElementsByTagName('tr');
     for (i = 1; i < tr.length; i++) {
@@ -333,7 +333,7 @@ function filterByName() {
 }
 function filterByGenre() {
     let input, filter, tr, genres, i, txtValue;
-    input = d.getElementById("myInput");
+    input = d.getElementById("filterField");
     filter = input.value.toUpperCase();
     tr = d.getElementsByTagName('tr');
     for (i = 1; i < tr.length; i++) {
@@ -362,7 +362,7 @@ function filterByPlayers() {
         return false
     }
     let input, tr, players, i
-    input = d.getElementById("myInput").value;
+    input = d.getElementById("filterField").value;
     tr = d.getElementsByTagName('tr');
     for (i = 1; i < tr.length; i++) {
         players = tr[i].getElementsByTagName("td")[2].innerText;
@@ -388,7 +388,7 @@ function filterByTime() {
         return false
     }
     let input, tr, timeTd, i
-    input = d.getElementById("myInput").value;
+    input = d.getElementById("filterField").value;
     tr = d.getElementsByTagName('tr');
     for (i = 1; i < tr.length; i++) {
         timeTd = tr[i].getElementsByTagName("td")[3].innerText;
@@ -403,7 +403,7 @@ function filterByTime() {
 
 function filterByChallenge() {
     let input, filter, tr, challenge, i, txtValue;
-    input = d.getElementById("myInput");
+    input = d.getElementById("filterField");
     filter = input.value.toUpperCase();
     tr = d.getElementsByTagName('tr');
     for (i = 1; i < tr.length; i++) {
@@ -417,6 +417,20 @@ function filterByChallenge() {
     }
 }
 
+function renderFilterSelect(){
+    return `
+    <select id="filter">
+        <option class="options" value="">Filter . . .</option>
+        <option class="options" value="Name">Name</option>
+        <option class="options" value="Genre">Genre</option>
+        <option class="options" value="Players">Players</option>
+        <option class="options" value="Playtime">Playtime</option>
+        <option class="options" value="Challenge">Challenge</option>
+    </select>
+    <span id="filterSpan"></span>
+    `
+}
+
 function renderFilterField(){
     let filter = d.getElementById('filter').value
     let span = d.getElementById('filterSpan')
@@ -425,19 +439,19 @@ function renderFilterField(){
             span.innerHTML = ``
             break
         case "Name":
-            span.innerHTML = `<input type="text" id="myInput" onkeyup="filterByName()" placeholder="Search by Name..." title="Type in a name">`
+            span.innerHTML = `<input type="text" id="filterField" onkeyup="filterByName()" placeholder="Search by Name..." title="Type in a name">`
             break
         case "Genre":
-            span.innerHTML = `<input type="text" id="myInput" onkeyup="filterByGenre()" placeholder="Search by Genre..." title="Type in a genre">`
+            span.innerHTML = `<input type="text" id="filterField" onkeyup="filterByGenre()" placeholder="Search by Genre..." title="Type in a genre">`
             break
         case "Players":
-            span.innerHTML = `<input type="text" id="myInput" onkeyup="filterByPlayers()" placeholder="Search by Player Count..." title="Type in a number">`
+            span.innerHTML = `<input type="text" id="filterField" onkeyup="filterByPlayers()" placeholder="Search by Player Count..." title="Type in a number">`
             break
         case "Playtime":
-            span.innerHTML = `<input type="number" id="myInput" onkeyup="filterByTime()" placeholder="Search by Playtime(min)..." title="Type in a number">`
+            span.innerHTML = `<input type="number" id="filterField" onkeyup="filterByTime()" placeholder="Search by Playtime(min)..." title="Type in a number">`
             break
         case "Challenge":
-            span.innerHTML = `<input type="text" id="myInput" onkeyup="filterByChallenge()" placeholder="Search by Challenge Rating..." title="Type in a challenge rating">`
+            span.innerHTML = `<input type="text" id="filterField" onkeyup="filterByChallenge()" placeholder="Search by Challenge Rating..." title="Type in a challenge rating">`
             break
 
     }
@@ -462,18 +476,7 @@ function loadGames(event, catId){
         div.innerHTML = `<h1>Select a ${category.title}</h1><div id="buttons"></div>`
         let buttonRow = d.getElementById('buttons')
 
-        d.createElement("SELECT")
-        let filterSelect = `
-        <select id="filter">
-            <option class="options" value="">Filter . . .</option>
-            <option class="options" value="Name">Name</option>
-            <option class="options" value="Genre">Genre</option>
-            <option class="options" value="Players">Players</option>
-            <option class="options" value="Playtime">Playtime</option>
-            <option class="options" value="Challenge">Challenge</option>
-        </select>
-        <span id="filterSpan"></span>
-        `
+        let filterSelect = renderFilterSelect()
         let table = generateBaseTable()
         div.appendChild(table)
         table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
@@ -512,18 +515,7 @@ function loadAllGames(event){
         div.innerHTML = `<h1>Select a Game</h1><div id="buttons"></div>`
         let buttonRow = d.getElementById('buttons')
 
-        d.createElement("SELECT")
-        let filterSelect = `
-        <select id="filter">
-            <option class="options" value="">Filter . . .</option>
-            <option class="options" value="Name">Name</option>
-            <option class="options" value="Genre">Genre</option>
-            <option class="options" value="Players">Players</option>
-            <option class="options" value="Playtime">Playtime</option>
-            <option class="options" value="Challenge">Challenge</option>
-        </select>
-        <span id="filterSpan"></span>
-        `
+        let filterSelect = renderFilterSelect()
         function generateAllGamesTable(){
             let headerArr = ['Game Title', 'Game Genre', 'Number of Players', 'Average Playtime', 'Challenge Rating', 'Game Category']
             let table = d.createElement('table')
@@ -662,7 +654,9 @@ function loadForm(event, category_id){
     div.innerHTML = gameForm
     
     let form = d.getElementsByClassName('GameForm')[0]
-    form.addEventListener("submit", submitNewGame)
+    form.addEventListener("submit", event => {
+        submitNewGame(event, category_id)
+    })
 }
 
 function generateNewButton(category_id){
@@ -675,7 +669,7 @@ function generateNewButton(category_id){
     return newGame
 }
 
-function submitNewGame(e){
+function submitNewGame(e, category_id){
     e.preventDefault()
     let allInputs = [].slice.call(d.getElementsByTagName('input'))
     let gameTitle = allInputs[0].value.toLowerCase()
@@ -685,12 +679,6 @@ function submitNewGame(e){
     let genres = getCheckedBoxes(d.getElementsByName('game[genre_ids][]'))
     let difficulties = getCheckedBoxes(d.getElementsByName('challenge'))
     let genTitle = d.getElementsByName('game[genres_attributes][0][title]')[0].value.toLowerCase()
-    
-    if (d.querySelector('h1').textContent.includes("Video")){
-        category_id = 2
-    } else {
-        category_id = 1
-    }
 
     fetch(BASE_URL + '/games', {
         headers: {
@@ -719,8 +707,8 @@ function submitNewGame(e){
     .then(newGame => {
         let game = new Game(newGame)
         let table = d.getElementsByClassName('game_table')[0]
-        if (d.getElementById('myInput')){
-            let input = d.getElementById('myInput')
+        if (d.getElementById('filterField')){
+            let input = d.getElementById('filterField')
             if (input.value !== ""){
                 tablerows = [...table.getElementsByTagName('tr')]
                 tablerows.forEach(row => {
