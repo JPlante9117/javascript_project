@@ -1,5 +1,7 @@
 const d = document
 const BASE_URL = 'http://localhost:3000'
+let games
+let gamesReversed = false
 
 function setAttributes(element, attrs){
     for(let key in attrs){
@@ -464,7 +466,7 @@ function loadGames(event, catId){
     .then(category => {
         let div = d.querySelector('main #container')
         div.setAttribute('class', '')
-        let games = category.games.sort((a, b) => {
+        games = category.games.sort((a, b) => {
             if (a.title > b.title){
                 return 1
             }
@@ -473,6 +475,7 @@ function loadGames(event, catId){
             }
             return 0
         })
+        
         div.innerHTML = `<h1>Select a ${category.title}</h1><div id="buttons"></div>`
         let buttonRow = d.getElementById('buttons')
 
@@ -481,8 +484,10 @@ function loadGames(event, catId){
         div.appendChild(table)
         table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
         table.rows[0].getElementsByTagName('th')[4].setAttribute('class','topRightHeader')
-        let buttons = generateNewButton(category.id)
-        buttonRow.appendChild(buttons)
+        let newButton = generateNewButton(category.id)
+        let reverseButton = reverseGamesButton(category)
+        buttonRow.appendChild(newButton)
+        buttonRow.appendChild(reverseButton)
         buttonRow.insertAdjacentHTML('beforeend', filterSelect)
         let select = d.getElementById('filter')
         select.addEventListener("change", renderFilterField)
@@ -495,6 +500,65 @@ function loadGames(event, catId){
     })
 }
 
+function reverseGamesButton(category = null){
+    let reverseButton = d.createElement('button')
+    reverseButton.appendChild(d.createTextNode('Reverse'))
+    reverseButton.setAttribute('class', 'selectionButton')
+    reverseButton.addEventListener('click', e => {
+        e.preventDefault()
+        games.reverse()
+        gamesReversed = !gamesReversed
+
+
+        let div = d.querySelector('main #container')
+        div.setAttribute('class', '')
+        
+        if (category){
+            div.innerHTML = `<h1>Select a ${category.title}</h1><div id="buttons"></div>`
+            let buttonRow = d.getElementById('buttons')
+            let filterSelect = renderFilterSelect()
+            let table = generateBaseTable()
+            div.appendChild(table)
+            table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
+            table.rows[0].getElementsByTagName('th')[4].setAttribute('class','topRightHeader')
+            let newButton = generateNewButton(category.id)
+            let reverseButton = reverseGamesButton(category)
+            buttonRow.appendChild(newButton)
+            buttonRow.appendChild(reverseButton)
+            buttonRow.insertAdjacentHTML('beforeend', filterSelect)
+            let select = d.getElementById('filter')
+            select.addEventListener("change", renderFilterField)
+            games.map(game => {
+                let newGame = new Game(game)
+                table.innerHTML += newGame.renderGame()
+            })
+            table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
+        } else {
+            div.innerHTML = `<h1>Select a Game</h1><div id="buttons"></div>`
+            let buttonRow = d.getElementById('buttons')
+            let filterSelect = renderFilterSelect()
+            let table = generateAllGamesTable()
+            div.appendChild(table)
+            table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
+            table.rows[0].getElementsByTagName('th')[5].setAttribute('class','topRightHeader')
+            let newButton = generateNewButtonForAll()
+            let reverseButton = reverseGamesButton()
+            buttonRow.appendChild(newButton)
+            buttonRow.appendChild(reverseButton)
+            buttonRow.insertAdjacentHTML('beforeend', filterSelect)
+            let select = d.getElementById('filter')
+            select.addEventListener("change", renderFilterField)
+            games.map(game => {
+                let newGame = new Game(game)
+                table.innerHTML += newGame.renderWithCat()
+            })
+            table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
+        }
+        closeNav()
+    })
+    return reverseButton
+}
+
 function loadAllGames(event){
     event.preventDefault()
     fetch(BASE_URL + `/games`)
@@ -502,7 +566,8 @@ function loadAllGames(event){
     .then(allGames => {
         let div = d.querySelector('main #container')
         div.setAttribute('class', '')
-        let games = allGames.sort((a, b) => {
+
+        games = allGames.sort((a, b) => {
             if (a.title > b.title){
                 return 1
             }
@@ -511,28 +576,20 @@ function loadAllGames(event){
             }
             return 0
         })
+
         div.innerHTML = `<h1>Select a Game</h1><div id="buttons"></div>`
         let buttonRow = d.getElementById('buttons')
 
         let filterSelect = renderFilterSelect()
-        function generateAllGamesTable(){
-            let headerArr = ['Game Title', 'Game Genre', 'Number of Players', 'Average Playtime', 'Challenge Rating', 'Game Category']
-            let table = d.createElement('table')
-            table.setAttribute('class', 'game_table')
-            let headerRow = table.insertRow(0)
-            for(let header of headerArr){
-                let th = d.createElement('th')
-                th.textContent = header
-                headerRow.appendChild(th)
-            }
-            return table
-        }
+
         let table = generateAllGamesTable()
         div.appendChild(table)
         table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
         table.rows[0].getElementsByTagName('th')[5].setAttribute('class','topRightHeader')
         let newGame = generateNewButtonForAll()
+        let reverseButton = reverseGamesButton()
         buttonRow.appendChild(newGame)
+        buttonRow.appendChild(reverseButton)
         buttonRow.insertAdjacentHTML('beforeend', filterSelect)
         let select = d.getElementById('filter')
         select.addEventListener("change", renderFilterField)
@@ -545,18 +602,34 @@ function loadAllGames(event){
     })
 }
 
+function generateAllGamesTable(){
+    let headerArr = ['Game Title', 'Game Genre', 'Number of Players', 'Average Playtime', 'Challenge Rating', 'Game Category']
+    let table = d.createElement('table')
+    table.setAttribute('class', 'game_table')
+    let headerRow = table.insertRow(0)
+    for(let header of headerArr){
+        let th = d.createElement('th')
+        th.textContent = header
+        headerRow.appendChild(th)
+    }
+    return table
+}
+
 d.addEventListener("DOMContentLoaded", () =>{
     homePage()
     d.getElementById('sideNavTTG').addEventListener('click', (event) => {
         closeForm()
+        gamesReversed = false
         loadGames(event, 1)
     })
     d.getElementById('sideNavVG').addEventListener('click', (event) => {
         closeForm()
+        gamesReversed = false
         loadGames(event, 2)
     })
     d.getElementById('sideNavALL').addEventListener('click', (event) => {
         closeForm()
+        gamesReversed = false
         loadAllGames(event)
     })
 })
