@@ -500,7 +500,6 @@ function loadAllGames(event){
     fetch(BASE_URL + `/games`)
     .then(resp => resp.json())
     .then(allGames => {
-        console.log(allGames)
         let div = d.querySelector('main #container')
         div.setAttribute('class', '')
         let games = allGames.sort((a, b) => {
@@ -719,7 +718,11 @@ function submitNewGame(e, category_id){
                 table = d.getElementsByClassName('game_table')[0]
             }
         }
-        table.innerHTML += game.renderGame()
+        if (d.getElementsByTagName('h1')[0].textContent === "Select a Game"){
+            table.innerHTML += game.renderWithCat()
+        } else {
+            table.innerHTML += game.renderGame()
+        }
         table.rows[table.rows.length - 2].setAttribute('class', '')
         table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
         showNoticeDiv(`${game.title} has been created`)
