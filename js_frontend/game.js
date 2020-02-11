@@ -56,4 +56,29 @@ class Game {
         </tr>
         `
     }
+
+    renderWithCat(){
+        return `
+        <tr id="gameRow${this.id}">
+            <td>
+                <a href="#" onclick="showPage(${this.id}); return false">${this.title}</a>
+            </td>
+            <td id="genrefor${this.id}">
+                ${this.displayGenreNames()}
+            </td>
+            <td>
+                ${this.getPlayerCount()}
+            </td>
+            <td>
+                ${this.minutesToHours()}
+            </td>
+            <td>
+                ${this.challenge}
+            </td>
+            <td>
+                ${this.category.title.split(" ")[0]}
+            </td>
+        </tr>
+        `
+    }
 }

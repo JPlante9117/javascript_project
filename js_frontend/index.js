@@ -29,9 +29,16 @@ function homePage(){
     setAttributes(video, {'id': 'vg_button'})
     video.appendChild(d.createTextNode("Video Games"))
     video.addEventListener('click', event => loadGames(event, 2))
+
+    let allGames = d.createElement('button')
+    setAttributes(allGames, {'id': 'tt_button'})
+    allGames.appendChild(d.createTextNode("All Games"))
+    allGames.addEventListener('click', event => loadAllGames(event))
+
     div.innerHTML = "<h1>What Kind of Game Will You Be Playing?</h1>"
     div.appendChild(tabletop)
     div.appendChild(video)
+    div.appendChild(allGames)
 }
 
 function showPage(gameID){
@@ -485,6 +492,68 @@ function loadGames(event, catId){
     })
 }
 
+function loadAllGames(event){
+    event.preventDefault()
+    fetch(BASE_URL + `/games`)
+    .then(resp => resp.json())
+    .then(allGames => {
+        console.log(allGames)
+        let div = d.querySelector('main #container')
+        div.setAttribute('class', '')
+        let games = allGames.sort((a, b) => {
+            if (a.title > b.title){
+                return 1
+            }
+            if (b.title > a.title){
+                return -1
+            }
+            return 0
+        })
+        div.innerHTML = `<h1>Select a Game</h1><div id="buttons"></div>`
+        let buttonRow = d.getElementById('buttons')
+
+        d.createElement("SELECT")
+        let filterSelect = `
+        <select id="filter">
+            <option class="options" value="">Filter . . .</option>
+            <option class="options" value="Name">Name</option>
+            <option class="options" value="Genre">Genre</option>
+            <option class="options" value="Players">Players</option>
+            <option class="options" value="Playtime">Playtime</option>
+            <option class="options" value="Challenge">Challenge</option>
+        </select>
+        <span id="filterSpan"></span>
+        `
+        function generateAllGamesTable(){
+            let headerArr = ['Game Title', 'Game Genre', 'Number of Players', 'Average Playtime', 'Challenge Rating', 'Game Category']
+            let table = d.createElement('table')
+            table.setAttribute('class', 'game_table')
+            let headerRow = table.insertRow(0)
+            for(let header of headerArr){
+                let th = d.createElement('th')
+                th.textContent = header
+                headerRow.appendChild(th)
+            }
+            return table
+        }
+        let table = generateAllGamesTable()
+        div.appendChild(table)
+        table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
+        table.rows[0].getElementsByTagName('th')[5].setAttribute('class','topRightHeader')
+        let newGame = generateNewButtonForAll()
+        buttonRow.appendChild(newGame)
+        buttonRow.insertAdjacentHTML('beforeend', filterSelect)
+        let select = d.getElementById('filter')
+        select.addEventListener("change", renderFilterField)
+        games.map(game => {
+            let newGame = new Game(game)
+            table.innerHTML += newGame.renderWithCat()
+        })
+        table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
+        closeNav()
+    })
+}
+
 d.addEventListener("DOMContentLoaded", () =>{
     homePage()
     d.getElementById('sideNavTTG').addEventListener('click', (event) => {
@@ -510,63 +579,94 @@ function generateBaseTable(){
     return table
 }
 
+function generateNewButtonForAll(){
+    let newGame = d.createElement('button')
+    newGame.setAttribute('id', 'newGameButton')
+    newGame.appendChild(d.createTextNode("New Game"))
+
+    newGame.addEventListener('click', () => {
+        let div = d.getElementById('sideForm')
+
+        let tabletop = d.createElement('button')
+        tabletop.setAttribute('class', 'selectionButton')
+        tabletop.appendChild(d.createTextNode("Tabletop"))
+        tabletop.addEventListener('click', event => loadForm(event, 1))
+
+        let video = d.createElement('button')
+        video.setAttribute('class', 'selectionButton')
+        video.appendChild(d.createTextNode("Video"))
+        video.addEventListener('click', event => loadForm(event, 2))
+        
+        div.innerHTML = `<div id="formToggle" onclick="closeForm()">&times;</div><br><br><center><h2>What Kind of Game Are You Creating?</h2></center>`
+        let center = d.getElementsByTagName("center")[0]
+        center.appendChild(tabletop)
+        center.appendChild(video)
+
+        openForm()
+    })
+
+    return newGame
+}
+
+function loadForm(event, category_id){
+    event.preventDefault()
+    let div = d.getElementById('sideForm')
+    fetch(BASE_URL + `/categories/${category_id}`)
+    .then(resp => resp.json())
+    .then(category => {
+        let genreDiv = d.getElementById('allGenres')
+        let genres = category.genres.sort((a, b) => {
+            if (a.title > b.title){
+                return 1
+            }
+            if (b.title > a.title){
+                return -1
+            }
+            return 0
+        })
+        genreDiv.innerHTML = genres.map((genre) => `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${toTitleCase(genre.title)}<br>`).join(" ")
+    })
+    let gameForm = `
+    <div id="formToggle" onclick="closeForm()">&times;</div>
+    <center><h2>Add a New Game</h2></center>
+    <form class="GameForm">
+        <label for="gameTitle">Game Title: </label>
+        <input type="text" name="gameTitle"/><br><br>
+        <label for="genres">Genres: </label><br>
+        <div id="allGenres"></div>
+        <label for="new_genre">New Genre: </label>
+        <input type="text" name="game[genres_attributes][0][title]"><br><br>
+        <label for="min_players">Players(min): </label>
+        <input type="number" name="min_players" min="1"/><br><br>
+        <label for="max_players">Players(max): </label>
+        <input type="number" name="max_players" min="1"/><br><br>
+        <label for="playtime">Average Playtime(in minutes): </label>
+        <input type="number" name="playtime" min="1"/><br><br>
+        <label for="challenge">Challenge Rating: </label><br>
+        <input type="radio" name="challenge" value="Easy">Easy<br>
+        <input type="radio" name="challenge" value="Intermediate">Intermediate<br>
+        <input type="radio" name="challenge" value="Hard">Hard<br>
+        <input type="radio" name="challenge" value="Challenging">Challenging<br>
+        <input type="radio" name="challenge" value="Masterful">Masterful<br>
+
+
+        <input type="submit" value="Add Game" id="submitButton"/>
+    </form>
+    `
+    
+    div.innerHTML = gameForm
+    openForm()
+    
+    let form = d.getElementsByClassName('GameForm')[0]
+    form.addEventListener("submit", submitNewGame)
+}
+
 function generateNewButton(category_id){
     let newGame = d.createElement('button')
     newGame.setAttribute('id', 'newGameButton')
     newGame.appendChild(d.createTextNode("New Game"))
 
-    newGame.addEventListener('click', e =>{
-        e.preventDefault()
-        let div = d.getElementById('sideForm')
-        fetch(BASE_URL + `/categories/${category_id}`)
-        .then(resp => resp.json())
-        .then(category => {
-            let genreDiv = d.getElementById('allGenres')
-            let genres = category.genres.sort((a, b) => {
-                if (a.title > b.title){
-                    return 1
-                }
-                if (b.title > a.title){
-                    return -1
-                }
-                return 0
-            })
-            genreDiv.innerHTML = genres.map((genre) => `<input type="checkbox" name="game[genre_ids][]" value="${genre.id}">${toTitleCase(genre.title)}<br>`).join(" ")
-        })
-        let gameForm = `
-        <div id="formToggle" onclick="closeForm()">&times;</div>
-        <center><h2>Add a New Game</h2></center>
-        <form class="GameForm">
-            <label for="gameTitle">Game Title: </label>
-            <input type="text" name="gameTitle"/><br><br>
-            <label for="genres">Genres: </label><br>
-            <div id="allGenres"></div>
-            <label for="new_genre">New Genre: </label>
-            <input type="text" name="game[genres_attributes][0][title]"><br><br>
-            <label for="min_players">Players(min): </label>
-            <input type="number" name="min_players" min="1"/><br><br>
-            <label for="max_players">Players(max): </label>
-            <input type="number" name="max_players" min="1"/><br><br>
-            <label for="playtime">Average Playtime(in minutes): </label>
-            <input type="number" name="playtime" min="1"/><br><br>
-            <label for="challenge">Challenge Rating: </label><br>
-            <input type="radio" name="challenge" value="Easy">Easy<br>
-            <input type="radio" name="challenge" value="Intermediate">Intermediate<br>
-            <input type="radio" name="challenge" value="Hard">Hard<br>
-            <input type="radio" name="challenge" value="Challenging">Challenging<br>
-            <input type="radio" name="challenge" value="Masterful">Masterful<br>
-
-
-            <input type="submit" value="Add Game" id="submitButton"/>
-        </form>
-        `
-        
-        div.innerHTML = gameForm
-        openForm()
-        
-        let form = d.getElementsByClassName('GameForm')[0]
-        form.addEventListener("submit", submitNewGame)
-    })
+    newGame.addEventListener('click', e => loadForm(e, category_id))
 
     return newGame
 }

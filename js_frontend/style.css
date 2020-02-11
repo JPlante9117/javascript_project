@@ -110,7 +110,7 @@ button:hover {
     cursor: pointer;
   }
 
-  #newGameButton, #editButton, #deleteButton, #submitButton, #backButton {
+  #newGameButton, #editButton, #deleteButton, #submitButton, #backButton, .selectionButton {
       position: relative;
       margin: 10px;
       border: 2px solid white;
@@ -128,7 +128,7 @@ button:hover {
     font-size: 13px;
   }
 
-  #newGameButton:hover, #editButton:hover, #submitButton:hover, #backButton:hover {
+  #newGameButton:hover, #editButton:hover, #submitButton:hover, #backButton:hover, .selectionButton:hover {
     background-color: white;
     color: rgb(94, 76, 136);
     transition: 0.5s;
