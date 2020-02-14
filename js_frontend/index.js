@@ -2,6 +2,7 @@ const d = document
 const BASE_URL = 'http://localhost:3000'
 let games
 let gamesReversed = false
+let viewAsTiles = true
 
 function setAttributes(element, attrs){
     for(let key in attrs){
@@ -112,7 +113,7 @@ function generateEditButton(game){
             <label for="gameTitle">Game Title: </label>
             <input type="text" name="gameTitle" value="${game.title}"/><br><br>
             <label for="gameImage">Game Image: </label>
-            <input type="text" name="gameImage" value="${game.imageURL}"/><br><br>
+            <input type="text" name="game[imageURL]" value="${game.imageURL}"/><br><br>
             <label for="genres">Genres: </label><br>
             <div id="allGenres"></div>
             <label for="new_genre">New Genre: </label>
@@ -173,6 +174,7 @@ function submitEdit(e, game){
     let genres = getCheckedBoxes(d.getElementsByName('game[genre_ids][]'))
     let difficulties = getCheckedBoxes(d.getElementsByName('challenge'))
     let genTitle = d.getElementsByName('game[genres_attributes][0][title]')[0].value.toLowerCase()
+    let imgURL = d.getElementsByName('game[imageURL]')[0].value
     
     if (d.getElementsByTagName('td')[0].innerText === "Video Game"){
         category_id = 2
@@ -199,7 +201,8 @@ function submitEdit(e, game){
                 genres_attributes:{
                     category_id: category_id,
                     title: genTitle.toLowerCase()
-                }
+                },
+                imageURL: imgURL
             }
         })
     })
@@ -493,33 +496,103 @@ function loadGames(event, catId){
             return 0
         })
         
-        div.innerHTML = `<h1>Select a ${category.title}</h1><div id="buttons"></div>`
-        let buttonRow = d.getElementById('buttons')
-
-        games.forEach(game => {
-            let gameTile = generateGameTiles(game)
-            div.appendChild(gameTile)
-        })
-
-        let filterSelect = renderFilterSelect()
-        let table = generateBaseTable()
-        div.appendChild(table)
-        table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
-        table.rows[0].getElementsByTagName('th')[4].setAttribute('class','topRightHeader')
-        let newButton = generateNewButton(category.id)
-        let reverseButton = reverseGamesButton(category)
-        buttonRow.appendChild(newButton)
-        buttonRow.appendChild(reverseButton)
-        buttonRow.insertAdjacentHTML('beforeend', filterSelect)
-        let select = d.getElementById('filter')
-        select.addEventListener("change", renderFilterField)
-        games.map(game => {
-            let newGame = new Game(game)
-            table.innerHTML += newGame.renderGame()
-        })
-        table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
+        let header = `<h1>Select a ${category.title}</h1><div id="buttons"></div>`
+        div.innerHTML = header
+        populateButtonRow(category, header)
+        if(viewAsTiles){
+            games.forEach(game => {
+                let gameTile = generateGameTiles(game)
+                div.appendChild(gameTile)
+            })
+        } else {
+            let table = generateBaseTable()
+            div.appendChild(table)
+            table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
+            table.rows[0].getElementsByTagName('th')[4].setAttribute('class','topRightHeader')
+            games.map(game => {
+                let newGame = new Game(game)
+                table.innerHTML += newGame.renderGame()
+            })
+            table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
+        }
         closeNav()
     })
+}
+
+function populateButtonRow(category, header){
+    let buttonRow = d.getElementById('buttons')
+    let viewToggle = generateViewButton(category, header)
+    let filterSelect = renderFilterSelect()
+    let newButton = generateNewButton(category.id)
+    buttonRow.appendChild(newButton)
+    buttonRow.appendChild(viewToggle)
+    buttonRow.insertAdjacentHTML('beforeend', filterSelect)
+    let select = d.getElementById('filter')
+    select.addEventListener("change", renderFilterField)
+}
+
+function populateAllButtonRow(header){
+    let buttonRow = d.getElementById('buttons')
+    let viewToggle = generateViewButton(null, header)
+    let filterSelect = renderFilterSelect()
+    let newGame = generateNewButtonForAll()
+    buttonRow.appendChild(newGame)
+    buttonRow.appendChild(viewToggle)
+    buttonRow.insertAdjacentHTML('beforeend', filterSelect)
+    let select = d.getElementById('filter')
+    select.addEventListener("change", renderFilterField)
+}
+
+function generateViewButton(category = null, header){
+    let div = d.getElementById('container')
+    let button = d.createElement('button')
+    let text
+    button.setAttribute('class', 'selectionButton')
+    if (viewAsTiles){
+        text = "View Table"
+    } else {
+        text = "View Tiles"
+    }
+    button.appendChild(d.createTextNode(text))
+    button.addEventListener('click', e => {
+        e.preventDefault()
+        div.innerHTML = header
+        viewAsTiles = !viewAsTiles
+        if (category){
+            populateButtonRow(category, header)
+        } else {
+            populateAllButtonRow(header)
+        }
+        if(viewAsTiles){
+            games.forEach(game => {
+                let gameTile = generateGameTiles(game)
+                div.appendChild(gameTile)
+            })
+        } else {
+            if(category){
+                let table = generateBaseTable()
+                div.appendChild(table)
+                table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
+                table.rows[0].getElementsByTagName('th')[4].setAttribute('class','topRightHeader')
+                games.map(game => {
+                    let newGame = new Game(game)
+                    table.innerHTML += newGame.renderGame()
+                })
+                table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
+            } else {
+                let table = generateAllGamesTable()
+                div.appendChild(table)
+                table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
+                table.rows[0].getElementsByTagName('th')[5].setAttribute('class','topRightHeader')
+                games.map(game => {
+                    let newGame = new Game(game)
+                    table.innerHTML += newGame.renderWithCat()
+                })
+                table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
+            }
+        }
+    })
+    return button
 }
 
 function generateGameTiles(gameObj){
@@ -629,27 +702,25 @@ function loadAllGames(event){
             return 0
         })
 
-        div.innerHTML = `<h1>Select a Game</h1><div id="buttons"></div>`
-        let buttonRow = d.getElementById('buttons')
-
-        let filterSelect = renderFilterSelect()
-
-        let table = generateAllGamesTable()
-        div.appendChild(table)
-        table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
-        table.rows[0].getElementsByTagName('th')[5].setAttribute('class','topRightHeader')
-        let newGame = generateNewButtonForAll()
-        let reverseButton = reverseGamesButton()
-        buttonRow.appendChild(newGame)
-        buttonRow.appendChild(reverseButton)
-        buttonRow.insertAdjacentHTML('beforeend', filterSelect)
-        let select = d.getElementById('filter')
-        select.addEventListener("change", renderFilterField)
-        games.map(game => {
-            let newGame = new Game(game)
-            table.innerHTML += newGame.renderWithCat()
-        })
-        table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
+        let header = `<h1>Select a Game</h1><div id="buttons"></div>`
+        div.innerHTML = header
+        populateAllButtonRow(header)
+        if(viewAsTiles){
+            games.forEach(game => {
+                let gameTile = generateGameTiles(game)
+                div.appendChild(gameTile)
+            })
+        } else {
+            let table = generateAllGamesTable()
+            div.appendChild(table)
+            table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
+            table.rows[0].getElementsByTagName('th')[5].setAttribute('class','topRightHeader')
+            games.map(game => {
+                let newGame = new Game(game)
+                table.innerHTML += newGame.renderWithCat()
+            })
+            table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
+        }
         closeNav()
     })
 }
@@ -753,6 +824,8 @@ function loadForm(event, category_id){
     <form class="GameForm">
         <label for="gameTitle">Game Title: </label>
         <input type="text" name="gameTitle"/><br><br>
+        <label for="imageURL">Image URL: </label>
+        <input type="text" name="game[imageURL]"><br><br>
         <label for="genres">Genres: </label><br>
         <div id="allGenres"></div>
         <label for="new_genre">New Genre: </label>
