@@ -9,6 +9,16 @@ class Game {
         this.challenge = game.challenge
         this.genres = game.genres
         this.category = game.category
+        this.imageURL = game.imageURL
+    }
+
+    truncateTitle(){
+        if (this.title.length > 35){
+            let newTitle = this.title.slice(0, 35) + "..."
+            return newTitle
+        } else {
+            return this.title
+        }
     }
 
     displayGenreNames(){

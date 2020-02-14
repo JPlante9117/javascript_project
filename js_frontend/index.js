@@ -111,6 +111,8 @@ function generateEditButton(game){
         <form class="GameForm">
             <label for="gameTitle">Game Title: </label>
             <input type="text" name="gameTitle" value="${game.title}"/><br><br>
+            <label for="gameImage">Game Image: </label>
+            <input type="text" name="gameImage" value="${game.imageURL}"/><br><br>
             <label for="genres">Genres: </label><br>
             <div id="allGenres"></div>
             <label for="new_genre">New Genre: </label>
@@ -320,6 +322,7 @@ function generateShowTable(game){
 
 function filterByName() {
     let input, filter, a, i, txtValue;
+    let gameTiles = d.getElementsByClassName('gameContainer')
     input = d.getElementById("filterField");
     filter = input.value.toUpperCase();
     tr = d.getElementsByTagName('tr');
@@ -327,14 +330,17 @@ function filterByName() {
         a = tr[i].getElementsByTagName("a")[0];
         txtValue = a.textContent || a.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            gameTiles[i-1].style.display = "inline-block";
             tr[i].style.display = "";
         } else {
+            gameTiles[i-1].style.display = "none";
             tr[i].style.display = "none";
         }
     }
 }
 function filterByGenre() {
     let input, filter, tr, genres, i, txtValue;
+    let gameTiles = d.getElementsByClassName('gameContainer')
     input = d.getElementById("filterField");
     filter = input.value.toUpperCase();
     tr = d.getElementsByTagName('tr');
@@ -342,8 +348,10 @@ function filterByGenre() {
         genres = tr[i].getElementsByTagName("td")[1];
         txtValue = genres.textContent || genres.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            gameTiles[i-1].style.display = "inline-block";
             tr[i].style.display = "";
         } else {
+            gameTiles[i-1].style.display = "none";
             tr[i].style.display = "none";
         }
     }
@@ -364,14 +372,17 @@ function filterByPlayers() {
         return false
     }
     let input, tr, players, i
+    let gameTiles = d.getElementsByClassName('gameContainer')
     input = d.getElementById("filterField").value;
     tr = d.getElementsByTagName('tr');
     for (i = 1; i < tr.length; i++) {
         players = tr[i].getElementsByTagName("td")[2].innerText;
         let range = players.split(" ")
         if (determineInsideRange(range, input)) {
+            gameTiles[i-1].style.display = "inline-block";
             tr[i].style.display = "";
         } else {
+            gameTiles[i-1].style.display = "none";
             tr[i].style.display = "none";
         }
     }
@@ -390,14 +401,17 @@ function filterByTime() {
         return false
     }
     let input, tr, timeTd, i
+    let gameTiles = d.getElementsByClassName('gameContainer')
     input = d.getElementById("filterField").value;
     tr = d.getElementsByTagName('tr');
     for (i = 1; i < tr.length; i++) {
         timeTd = tr[i].getElementsByTagName("td")[3].innerText;
         let timeArr = timeTd.split(" ")
         if (determineTime(timeArr, input)) {
+            gameTiles[i-1].style.display = "inline-block";
             tr[i].style.display = "";
         } else {
+            gameTiles[i-1].style.display = "none";
             tr[i].style.display = "none";
         }
     }
@@ -405,6 +419,7 @@ function filterByTime() {
 
 function filterByChallenge() {
     let input, filter, tr, challenge, i, txtValue;
+    let gameTiles = d.getElementsByClassName('gameContainer')
     input = d.getElementById("filterField");
     filter = input.value.toUpperCase();
     tr = d.getElementsByTagName('tr');
@@ -412,8 +427,10 @@ function filterByChallenge() {
         challenge = tr[i].getElementsByTagName("td")[4];
         txtValue = challenge.textContent || challenge.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            gameTiles[i-1].style.display = "inline-block";
             tr[i].style.display = "";
         } else {
+            gameTiles[i-1].style.display = "none";
             tr[i].style.display = "none";
         }
     }
@@ -479,6 +496,11 @@ function loadGames(event, catId){
         div.innerHTML = `<h1>Select a ${category.title}</h1><div id="buttons"></div>`
         let buttonRow = d.getElementById('buttons')
 
+        games.forEach(game => {
+            let gameTile = generateGameTiles(game)
+            div.appendChild(gameTile)
+        })
+
         let filterSelect = renderFilterSelect()
         let table = generateBaseTable()
         div.appendChild(table)
@@ -498,6 +520,36 @@ function loadGames(event, catId){
         table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
         closeNav()
     })
+}
+
+function generateGameTiles(gameObj){
+    let game = new Game(gameObj)
+    let gameTile = d.createElement('div')
+    let titlePlate = d.createElement('div')
+    let underPlate = d.createElement('div')
+    let cornerTab = d.createElement('div')
+    let cornerText = d.createElement('p')
+    let titleText = d.createElement('p')
+    cornerText.setAttribute('id', 'magnifying-glass')
+    gameTile.setAttribute('class', 'gameContainer')
+    titlePlate.setAttribute('class', 'gameContainerTitle')
+    underPlate.setAttribute('class', 'underPlate')
+    cornerTab.setAttribute('class', 'gameContainerCorner')
+    if (game.imageURL){
+        gameTile.style.backgroundImage = `url('${game.imageURL}')`
+    }
+    gameTile.addEventListener('click', (e) => {
+        e.preventDefault()
+        showPage(game.id)
+    })
+    titleText.textContent = toTitleCase(game.truncateTitle())
+    gameTile.appendChild(underPlate)
+    gameTile.appendChild(titlePlate)
+    gameTile.appendChild(titleText)
+    gameTile.appendChild(cornerTab)
+    cornerTab.appendChild(cornerText)
+
+    return gameTile
 }
 
 function reverseGamesButton(category = null){
