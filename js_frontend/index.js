@@ -1,5 +1,5 @@
 const d = document
-const BASE_URL = 'http://localhost:3000'
+const BASE_URL = 'https://game-collection-organizer.herokuapp.com/'
 let games
 let gamesReversed = false
 let viewAsTiles = true
@@ -625,64 +625,64 @@ function generateGameTiles(gameObj){
     return gameTile
 }
 
-function reverseGamesButton(category = null){
-    let reverseButton = d.createElement('button')
-    reverseButton.appendChild(d.createTextNode('Reverse'))
-    reverseButton.setAttribute('class', 'selectionButton')
-    reverseButton.addEventListener('click', e => {
-        e.preventDefault()
-        games.reverse()
-        gamesReversed = !gamesReversed
+// function reverseGamesButton(category = null){
+//     let reverseButton = d.createElement('button')
+//     reverseButton.appendChild(d.createTextNode('Reverse'))
+//     reverseButton.setAttribute('class', 'selectionButton')
+//     reverseButton.addEventListener('click', e => {
+//         e.preventDefault()
+//         games.reverse()
+//         gamesReversed = !gamesReversed
 
 
-        let div = d.querySelector('main #container')
-        div.setAttribute('class', '')
+//         let div = d.querySelector('main #container')
+//         div.setAttribute('class', '')
         
-        if (category){
-            div.innerHTML = `<h1>Select a ${category.title}</h1><div id="buttons"></div>`
-            let buttonRow = d.getElementById('buttons')
-            let filterSelect = renderFilterSelect()
-            let table = generateBaseTable()
-            div.appendChild(table)
-            table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
-            table.rows[0].getElementsByTagName('th')[4].setAttribute('class','topRightHeader')
-            let newButton = generateNewButton(category.id)
-            let reverseButton = reverseGamesButton(category)
-            buttonRow.appendChild(newButton)
-            buttonRow.appendChild(reverseButton)
-            buttonRow.insertAdjacentHTML('beforeend', filterSelect)
-            let select = d.getElementById('filter')
-            select.addEventListener("change", renderFilterField)
-            games.map(game => {
-                let newGame = new Game(game)
-                table.innerHTML += newGame.renderGame()
-            })
-            table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
-        } else {
-            div.innerHTML = `<h1>Select a Game</h1><div id="buttons"></div>`
-            let buttonRow = d.getElementById('buttons')
-            let filterSelect = renderFilterSelect()
-            let table = generateAllGamesTable()
-            div.appendChild(table)
-            table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
-            table.rows[0].getElementsByTagName('th')[5].setAttribute('class','topRightHeader')
-            let newButton = generateNewButtonForAll()
-            let reverseButton = reverseGamesButton()
-            buttonRow.appendChild(newButton)
-            buttonRow.appendChild(reverseButton)
-            buttonRow.insertAdjacentHTML('beforeend', filterSelect)
-            let select = d.getElementById('filter')
-            select.addEventListener("change", renderFilterField)
-            games.map(game => {
-                let newGame = new Game(game)
-                table.innerHTML += newGame.renderWithCat()
-            })
-            table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
-        }
-        closeNav()
-    })
-    return reverseButton
-}
+//         if (category){
+//             div.innerHTML = `<h1>Select a ${category.title}</h1><div id="buttons"></div>`
+//             let buttonRow = d.getElementById('buttons')
+//             let filterSelect = renderFilterSelect()
+//             let table = generateBaseTable()
+//             div.appendChild(table)
+//             table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
+//             table.rows[0].getElementsByTagName('th')[4].setAttribute('class','topRightHeader')
+//             let newButton = generateNewButton(category.id)
+//             let reverseButton = reverseGamesButton(category)
+//             buttonRow.appendChild(newButton)
+//             buttonRow.appendChild(reverseButton)
+//             buttonRow.insertAdjacentHTML('beforeend', filterSelect)
+//             let select = d.getElementById('filter')
+//             select.addEventListener("change", renderFilterField)
+//             games.map(game => {
+//                 let newGame = new Game(game)
+//                 table.innerHTML += newGame.renderGame()
+//             })
+//             table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
+//         } else {
+//             div.innerHTML = `<h1>Select a Game</h1><div id="buttons"></div>`
+//             let buttonRow = d.getElementById('buttons')
+//             let filterSelect = renderFilterSelect()
+//             let table = generateAllGamesTable()
+//             div.appendChild(table)
+//             table.rows[0].getElementsByTagName('th')[0].setAttribute('class','topLeftHeader')
+//             table.rows[0].getElementsByTagName('th')[5].setAttribute('class','topRightHeader')
+//             let newButton = generateNewButtonForAll()
+//             let reverseButton = reverseGamesButton()
+//             buttonRow.appendChild(newButton)
+//             buttonRow.appendChild(reverseButton)
+//             buttonRow.insertAdjacentHTML('beforeend', filterSelect)
+//             let select = d.getElementById('filter')
+//             select.addEventListener("change", renderFilterField)
+//             games.map(game => {
+//                 let newGame = new Game(game)
+//                 table.innerHTML += newGame.renderWithCat()
+//             })
+//             table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
+//         }
+//         closeNav()
+//     })
+//     return reverseButton
+// }
 
 function loadAllGames(event){
     event.preventDefault()
@@ -876,6 +876,7 @@ function submitNewGame(e, category_id){
     let genres = getCheckedBoxes(d.getElementsByName('game[genre_ids][]'))
     let difficulties = getCheckedBoxes(d.getElementsByName('challenge'))
     let genTitle = d.getElementsByName('game[genres_attributes][0][title]')[0].value.toLowerCase()
+    let imgURL = d.getElementsByName('game[imageURL]')[0].value
 
     fetch(BASE_URL + '/games', {
         headers: {
@@ -896,33 +897,40 @@ function submitNewGame(e, category_id){
                 genres_attributes:{
                     category_id: category_id,
                     title: genTitle.toLowerCase()
-                }
+                },
+                imageURL: imgURL
             }
         })
     })
     .then(resp => resp.json())
     .then(newGame => {
+        let div = d.getElementById('container')
         let game = new Game(newGame)
-        let table = d.getElementsByClassName('game_table')[0]
-        if (d.getElementById('filterField')){
-            let input = d.getElementById('filterField')
-            if (input.value !== ""){
-                tablerows = [...table.getElementsByTagName('tr')]
-                tablerows.forEach(row => {
-                    row.style.display = ""
-                })
-                input.value = ""
-            } else {
-                table = d.getElementsByClassName('game_table')[0]
-            }
-        }
-        if (d.getElementsByTagName('h1')[0].textContent === "Select a Game"){
-            table.innerHTML += game.renderWithCat()
+        if (viewAsTiles){
+            let tile = generateGameTiles(game)
+            div.appendChild(tile)
         } else {
-            table.innerHTML += game.renderGame()
+            let table = d.getElementsByClassName('game_table')[0]
+            if (d.getElementById('filterField')){
+                let input = d.getElementById('filterField')
+                if (input.value !== ""){
+                    tablerows = [...table.getElementsByTagName('tr')]
+                    tablerows.forEach(row => {
+                        row.style.display = ""
+                    })
+                    input.value = ""
+                } else {
+                    table = d.getElementsByClassName('game_table')[0]
+                }
+            }
+            if (d.getElementsByTagName('h1')[0].textContent === "Select a Game"){
+                table.innerHTML += game.renderWithCat()
+            } else {
+                table.innerHTML += game.renderGame()
+            }
+            table.rows[table.rows.length - 2].setAttribute('class', '')
+            table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
         }
-        table.rows[table.rows.length - 2].setAttribute('class', '')
-        table.rows[table.rows.length - 1].setAttribute('class', 'last_row')
         showNoticeDiv(`${game.title} has been created`)
         clearForm()
         closeForm()
