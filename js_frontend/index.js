@@ -338,11 +338,7 @@ function filterByName() {
         a = items[i].getElementsByTagName("a")[0];
         txtValue = a.textContent || a.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
-            if (viewAsTiles){
-                items[i].style.display = "inline-block";
-            } else{
-                items[i].style.display = "";
-            }
+            items[i].style.display = "";
         } else {
             items[i].style.display = "none";
         }
