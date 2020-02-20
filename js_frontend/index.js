@@ -328,7 +328,7 @@ function filterByName() {
     input = d.getElementById("filterField");
     filter = input.value.toUpperCase();
     let items
-    console.log(viewAsTiles)
+    console.log("viewAsTiles")
     if (viewAsTiles){
         items = d.getElementsByClassName('gameContainer')
     } else {
