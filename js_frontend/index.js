@@ -352,7 +352,6 @@ function filterByName() {
 
 function filterByGenre() {
     let input, filter, tr, genres, i, txtValue;
-    let gameTiles = d.getElementsByClassName('gameContainer')
     input = d.getElementById("filterField");
     filter = input.value.toUpperCase();
     tr = d.getElementsByTagName('tr');
@@ -360,10 +359,8 @@ function filterByGenre() {
         genres = tr[i].getElementsByTagName("td")[1];
         txtValue = genres.textContent || genres.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
-            gameTiles[i-1].style.display = "inline-block";
             tr[i].style.display = "";
         } else {
-            gameTiles[i-1].style.display = "none";
             tr[i].style.display = "none";
         }
     }
@@ -384,17 +381,14 @@ function filterByPlayers() {
         return false
     }
     let input, tr, players, i
-    let gameTiles = d.getElementsByClassName('gameContainer')
     input = d.getElementById("filterField").value;
     tr = d.getElementsByTagName('tr');
     for (i = 1; i < tr.length; i++) {
         players = tr[i].getElementsByTagName("td")[2].innerText;
         let range = players.split(" ")
         if (determineInsideRange(range, input)) {
-            gameTiles[i-1].style.display = "inline-block";
             tr[i].style.display = "";
         } else {
-            gameTiles[i-1].style.display = "none";
             tr[i].style.display = "none";
         }
     }
@@ -413,17 +407,14 @@ function filterByTime() {
         return false
     }
     let input, tr, timeTd, i
-    let gameTiles = d.getElementsByClassName('gameContainer')
     input = d.getElementById("filterField").value;
     tr = d.getElementsByTagName('tr');
     for (i = 1; i < tr.length; i++) {
         timeTd = tr[i].getElementsByTagName("td")[3].innerText;
         let timeArr = timeTd.split(" ")
         if (determineTime(timeArr, input)) {
-            gameTiles[i-1].style.display = "inline-block";
             tr[i].style.display = "";
         } else {
-            gameTiles[i-1].style.display = "none";
             tr[i].style.display = "none";
         }
     }
@@ -431,7 +422,6 @@ function filterByTime() {
 
 function filterByChallenge() {
     let input, filter, tr, challenge, i, txtValue;
-    let gameTiles = d.getElementsByClassName('gameContainer')
     input = d.getElementById("filterField");
     filter = input.value.toUpperCase();
     tr = d.getElementsByTagName('tr');
@@ -439,10 +429,8 @@ function filterByChallenge() {
         challenge = tr[i].getElementsByTagName("td")[4];
         txtValue = challenge.textContent || challenge.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
-            gameTiles[i-1].style.display = "inline-block";
             tr[i].style.display = "";
         } else {
-            gameTiles[i-1].style.display = "none";
             tr[i].style.display = "none";
         }
     }
