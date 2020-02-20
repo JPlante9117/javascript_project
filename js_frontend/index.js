@@ -411,16 +411,26 @@ function filterByPlayers() {
         }
         return false
     }
-    let input, tr, players, i
+    let input, items, players, i
     input = d.getElementById("filterField").value;
-    tr = d.getElementsByTagName('tr');
-    for (i = 1; i < tr.length; i++) {
-        players = tr[i].getElementsByTagName("td")[2].innerText;
+    if (viewAsTiles){
+        items = d.getElementsByClassName('gameContainer')
+        i = 0
+    } else {
+        items = d.getElementsByTagName('tr');
+        i = 1
+    }
+    for (i; i < items.length; i++) {
+        if (viewAsTiles) {
+            players = items[i].querySelector('.tilePlayers').innerText
+        } else {
+            players = items[i].getElementsByTagName("td")[2].innerText;
+        }
         let range = players.split(" ")
         if (determineInsideRange(range, input)) {
-            tr[i].style.display = "";
+            items[i].style.display = "";
         } else {
-            tr[i].style.display = "none";
+            items[i].style.display = "none";
         }
     }
 }
@@ -437,32 +447,52 @@ function filterByTime() {
         }
         return false
     }
-    let input, tr, timeTd, i
+    let input, items, timeTd, i
     input = d.getElementById("filterField").value;
-    tr = d.getElementsByTagName('tr');
-    for (i = 1; i < tr.length; i++) {
-        timeTd = tr[i].getElementsByTagName("td")[3].innerText;
+    if (viewAsTiles){
+        items = d.getElementsByClassName('gameContainer')
+        i = 0
+    } else {
+        items = d.getElementsByTagName('tr');
+        i = 1
+    }
+    for (i; i < items.length; i++) {
+        if (viewAsTiles){
+            timeTd = items[i].querySelector('.tilePlaytime').innerText
+        } else {
+            timeTd = items[i].getElementsByTagName("td")[3].innerText
+        }
         let timeArr = timeTd.split(" ")
         if (determineTime(timeArr, input)) {
-            tr[i].style.display = "";
+            items[i].style.display = "";
         } else {
-            tr[i].style.display = "none";
+            items[i].style.display = "none";
         }
     }
 }
 
 function filterByChallenge() {
-    let input, filter, tr, challenge, i, txtValue;
+    let input, filter, items, challenge, i, txtValue;
     input = d.getElementById("filterField");
     filter = input.value.toUpperCase();
-    tr = d.getElementsByTagName('tr');
-    for (i = 1; i < tr.length; i++) {
-        challenge = tr[i].getElementsByTagName("td")[4];
+    if (viewAsTiles){
+        items = d.getElementsByClassName('gameContainer')
+        i = 0
+    } else {
+        items = d.getElementsByTagName('tr');
+        i = 1
+    }
+    for (i; i < items.length; i++) {
+        if (viewAsTiles) {
+            challenge = items[i].querySelector(".tileChallenge")
+        } else {
+            challenge = items[i].getElementsByTagName("td")[4];
+        }
         txtValue = challenge.textContent || challenge.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
-            tr[i].style.display = "";
+            items[i].style.display = "";
         } else {
-            tr[i].style.display = "none";
+            items[i].style.display = "none";
         }
     }
 }
@@ -637,6 +667,21 @@ function generateGameTiles(gameObj){
     genreDiv.style.display = "none"
     genreDiv.textContent = game.displayGenreNames()
 
+    let playersDiv = d.createElement('div')
+    playersDiv.setAttribute('class', 'tilePlayers')
+    playersDiv.style.display = "none"
+    playersDiv.textContent = game.getPlayerCount()
+
+    let timeDiv = d.createElement('div')
+    timeDiv.setAttribute('class', 'tilePlaytime')
+    timeDiv.style.display = "none"
+    timeDiv.textContent = game.minutesToHours()
+
+    let challengeDiv = d.createElement('div')
+    challengeDiv.setAttribute('class', 'tileChallenge')
+    challengeDiv.style.display = "none"
+    challengeDiv.textContent = game.challenge
+
     cornerText.setAttribute('id', 'magnifying-glass')
     gameTile.setAttribute('class', 'gameContainer')
     titlePlate.setAttribute('class', 'gameContainerTitle')
@@ -657,6 +702,9 @@ function generateGameTiles(gameObj){
     cornerTab.appendChild(cornerText)
 
     gameTile.appendChild(genreDiv)
+    gameTile.appendChild(playersDiv)
+    gameTile.appendChild(timeDiv)
+    gameTile.appendChild(challengeDiv)
 
     return gameTile
 }
