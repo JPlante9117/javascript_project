@@ -350,21 +350,52 @@ function filterByName() {
     }
 }
 
+// function filterByGenre() {
+//     let input, filter, tr, genres, i, txtValue;
+//     input = d.getElementById("filterField");
+//     filter = input.value.toUpperCase();
+//     tr = d.getElementsByTagName('tr');
+//     for (i = 1; i < tr.length; i++) {
+//         genres = tr[i].getElementsByTagName("td")[1];
+//         txtValue = genres.textContent || genres.innerText;
+//         if (txtValue.toUpperCase().indexOf(filter) > -1) {
+//             tr[i].style.display = "";
+//         } else {
+//             tr[i].style.display = "none";
+//         }
+//     }
+// }
+
+
 function filterByGenre() {
-    let input, filter, tr, genres, i, txtValue;
+    let input, filter, items, genres, i, txtValue;
     input = d.getElementById("filterField");
     filter = input.value.toUpperCase();
-    tr = d.getElementsByTagName('tr');
-    for (i = 1; i < tr.length; i++) {
-        genres = tr[i].getElementsByTagName("td")[1];
+    if (viewAsTiles){
+        items = d.getElementsByClassName('gameContainer')
+        i = 0
+    } else {
+        items = d.getElementsByTagName('tr');
+        i = 1
+    }
+    for (i; i < items.length; i++) {
+        if (viewAsTiles) {
+            genres = items[i].querySelector(".tileGenres")
+        } else {
+            genres = items[i].getElementsByTagName("td")[1];
+        }
         txtValue = genres.textContent || genres.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
-            tr[i].style.display = "";
+            items[i].style.display = "";
         } else {
-            tr[i].style.display = "none";
+            items[i].style.display = "none";
         }
     }
 }
+
+
+
+
 
 function filterByPlayers() {
     function determineInsideRange(range, input){
@@ -600,6 +631,12 @@ function generateGameTiles(gameObj){
     let cornerTab = d.createElement('div')
     let cornerText = d.createElement('p')
     let titleText = d.createElement('p')
+
+    let genreDiv = d.createElement('div')
+    genreDiv.setAttribute('class', 'tileGenres')
+    genreDiv.style.display = "none"
+    genreDiv.textContent = game.displayGenreNames()
+
     cornerText.setAttribute('id', 'magnifying-glass')
     gameTile.setAttribute('class', 'gameContainer')
     titlePlate.setAttribute('class', 'gameContainerTitle')
@@ -618,6 +655,8 @@ function generateGameTiles(gameObj){
     gameTile.appendChild(titleText)
     gameTile.appendChild(cornerTab)
     cornerTab.appendChild(cornerText)
+
+    gameTile.appendChild(genreDiv)
 
     return gameTile
 }
