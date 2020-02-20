@@ -328,14 +328,14 @@ function filterByName() {
     input = d.getElementById("filterField");
     filter = input.value.toUpperCase();
     let items
-    console.log("viewAsTiles")
     if (viewAsTiles){
         items = d.getElementsByClassName('gameContainer')
+        i = 0
     } else {
         items = d.getElementsByTagName('tr');
+        i = 1
     }
-    for (i = 1; i < items.length; i++) {
-        let a
+    for (i; i < items.length; i++) {
         if (viewAsTiles){
             a = items[i].getElementsByTagName("p")[0]
         } else {
