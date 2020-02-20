@@ -335,7 +335,12 @@ function filterByName() {
         items = d.getElementsByTagName('tr');
     }
     for (i = 1; i < items.length; i++) {
-        a = items[i].getElementsByTagName("a")[0];
+        let a
+        if (viewAsTiles){
+            a = items[i].getElementsByTagName("p")[0]
+        } else {
+            a = items[i].getElementsByTagName("a")[0]
+        }
         txtValue = a.textContent || a.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
             items[i].style.display = "";
