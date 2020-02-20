@@ -325,19 +325,25 @@ function generateShowTable(game){
 
 function filterByName() {
     let input, filter, a, i, txtValue;
-    let gameTiles = d.getElementsByClassName('gameContainer')
     input = d.getElementById("filterField");
     filter = input.value.toUpperCase();
-    tr = d.getElementsByTagName('tr');
-    for (i = 1; i < tr.length; i++) {
-        a = tr[i].getElementsByTagName("a")[0];
+    let items
+    if (viewAsTiles){
+        items = d.getElementsByClassName('gameContainer')
+    } else {
+        items = d.getElementsByTagName('tr');
+    }
+    for (i = 1; i < items.length; i++) {
+        a = items[i].getElementsByTagName("a")[0];
         txtValue = a.textContent || a.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
-            gameTiles[i-1].style.display = "inline-block";
-            tr[i].style.display = "";
+            if (viewAsTiles){
+                items[i].style.display = "";
+            } else{
+                items[i].style.display = "";
+            }
         } else {
-            gameTiles[i-1].style.display = "none";
-            tr[i].style.display = "none";
+            items[i].style.display = "none";
         }
     }
 }
