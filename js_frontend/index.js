@@ -338,7 +338,7 @@ function filterByName() {
         txtValue = a.textContent || a.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
             if (viewAsTiles){
-                items[i].style.display = "";
+                items[i].style.display = "inline-block";
             } else{
                 items[i].style.display = "";
             }
