@@ -988,6 +988,8 @@ function submitNewGame(e, category_id){
     })
     .then(resp => resp.json())
     .then(newGame => {
+        games.push(newGame)
+
         let div = d.getElementById('container')
         let game = new Game(newGame)
         if (viewAsTiles){
