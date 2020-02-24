@@ -57,6 +57,11 @@ Once selected, the user can:
 
 On all pages, there is a symbol in the upper left-hand corner that allows for users toggle a navigation bar that allows for switching between the two types of games.
 
+## DEMO
+
+Below is a video demonstrating the use of the application
+https://www.youtube.com/watch?v=Mj8Cb-wTX7g&t
+
 ## Contributing
 
 Any user is welcome to pull and use the application. If any major bugs are found, please send them my way to allow for updated solutions.
